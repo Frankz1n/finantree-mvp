@@ -29,6 +29,27 @@ export const TransactionService = {
         return { ...data, icon: '🏷️' };
     },
 
+    getTransactions: async (userId: string, targetMonth: Date) => {
+        try {
+            const startOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1).toISOString();
+            const endOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0, 23, 59, 59, 999).toISOString();
+
+            const { data, error } = await supabase
+                .from('transactions')
+                .select('*, categories(name, color)')
+                .eq('user_id', userId)
+                .gte('date', startOfMonth)
+                .lte('date', endOfMonth)
+                .order('date', { ascending: false });
+
+            if (error) throw error;
+            return data || [];
+        } catch (err) {
+            console.error('Error fetching transactions:', err);
+            return [];
+        }
+    },
+
     createTransaction: async (payload: any) => {
         const { data, error } = await supabase
             .from('transactions')
@@ -48,5 +69,14 @@ export const TransactionService = {
 
         if (error) throw error;
         return data;
+    },
+
+    deleteTransaction: async (id: string) => {
+        const { error } = await supabase
+            .from('transactions')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
     }
 };

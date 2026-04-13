@@ -29,31 +29,6 @@ export const useAuth = () => {
     }, []);
 
 
-    const [efficiencyScore, setEfficiencyScore] = useState(0);
-
-    useEffect(() => {
-        if (!user) return;
-
-        const checkIn = async () => {
-            try {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('efficiency_score')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profile) {
-                    setEfficiencyScore(profile.efficiency_score || 0);
-                }
-
-            } catch (err) {
-                console.error("Error executing check-in:", err);
-            }
-        };
-
-        checkIn();
-    }, [user]);
-
     const handleAuthAction = async (action: () => Promise<any>) => {
         setLoading(true);
         setError(null);
@@ -77,6 +52,5 @@ export const useAuth = () => {
         signOut: () => handleAuthAction(AuthService.signOut),
         resetPassword: (email: string) => handleAuthAction(() => AuthService.resetPassword(email)),
         isAuthenticated: !!user,
-        efficiencyScore,
     };
 };
