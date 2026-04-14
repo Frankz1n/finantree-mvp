@@ -9,6 +9,13 @@ export interface Category {
 
 export type TransactionStatus = 'paid' | 'pending';
 
+export interface TransactionCategoryJoin {
+    id?: string;
+    name?: string;
+    color?: string;
+    icon?: string;
+}
+
 export interface Transaction {
     id: string;
     created_at: string;
@@ -16,8 +23,9 @@ export interface Transaction {
     amount: number;
     type: 'income' | 'expense';
     description: string;
-    category: string;
+    category?: string;
+    category_id?: string | null;
     date: string; // ISO String mapping to timestamp
     status: TransactionStatus;
-    categories?: Category; // Left join
+    categories?: TransactionCategoryJoin | null; // Left join (partial select)
 }
