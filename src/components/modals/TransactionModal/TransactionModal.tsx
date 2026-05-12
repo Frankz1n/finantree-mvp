@@ -1,5 +1,6 @@
 import { X, Check, Loader2, Calendar } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { TransactionService } from "@/services/transactions"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
@@ -24,7 +25,9 @@ interface Category {
 }
 
 export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData }: TransactionModalProps) {
+    const { t, i18n } = useTranslation()
     const { user } = useAuth()
+    const dateFormat = useMemo(() => (i18n.language === 'en' ? 'MM/dd/yyyy' : 'dd/MM/yyyy'), [i18n.language])
     const [amount, setAmount] = useState('')
     const [description, setDescription] = useState('')
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -80,8 +83,8 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
             setSelectedCategory(newCat.id)
             setIsAddingCategory(false)
             setNewCategoryName('')
-        } catch (e: any) {
-            toast.error("Failed to create category")
+        } catch {
+            toast.error(t("transactionModal.categoryCreateFailed"))
         } finally {
             setIsLoadingCats(false)
         }
@@ -91,15 +94,15 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
         const currentUserId = user?.id || "00000000-0000-0000-0000-000000000000";
 
         if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-            toast.error("Please enter a valid amount.")
+            toast.error(t("transactionModal.validAmount"))
             return
         }
         if (!description.trim()) {
-            toast.error("Please enter a description.")
+            toast.error(t("transactionModal.enterDescription"))
             return
         }
         if (!selectedCategory) {
-            toast.error("Please select a category.")
+            toast.error(t("transactionModal.selectCategory"))
             return
         }
 
@@ -115,7 +118,7 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                     date: dueDate,
                     status: isPending ? 'pending' : 'paid'
                 })
-                toast.success(isIncome ? "Income updated successfully!" : "Expense updated successfully!")
+                toast.success(isIncome ? t("transactionModal.incomeUpdated") : t("transactionModal.expenseUpdated"))
             } else {
                 await TransactionService.createTransaction({
                     user_id: currentUserId,
@@ -126,14 +129,14 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                     date: dueDate,
                     status: isPending ? 'pending' : 'paid'
                 })
-                toast.success(isIncome ? "Income added successfully!" : "Expense added successfully!")
+                toast.success(isIncome ? t("transactionModal.incomeAdded") : t("transactionModal.expenseAdded"))
             }
 
             window.dispatchEvent(new CustomEvent('transaction_updated'))
             onSuccess()
             onClose()
         } catch {
-            toast.error("Error saving transaction. Please try again.")
+            toast.error(t("transactionModal.saveError"))
         } finally {
             setIsSubmitting(false)
         }
@@ -148,7 +151,13 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
 
                 <S.Header>
                     <S.Title $isIncome={isIncome}>
-                        {initialData ? (isIncome ? "Edit Income" : "Edit Expense") : (isIncome ? "New Income" : "New Expense")}
+                        {initialData
+                            ? isIncome
+                                ? t("transactionModal.editIncome")
+                                : t("transactionModal.editExpense")
+                            : isIncome
+                                ? t("transactionModal.newIncome")
+                                : t("transactionModal.newExpense")}
                     </S.Title>
                     <S.CloseButton onClick={onClose}>
                         <X size={20} />
@@ -157,7 +166,7 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
 
                 <S.Body>
                     <S.LabelGroup>
-                        <S.Label>Amount</S.Label>
+                        <S.Label>{t("transactionModal.amount")}</S.Label>
                         <S.CurrencyInputWrapper>
                             <CurrencyInput
                                 value={amount}
@@ -168,17 +177,17 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                     </S.LabelGroup>
 
                     <S.LabelGroup>
-                        <S.Label>Description</S.Label>
+                        <S.Label>{t("transactionModal.description")}</S.Label>
                         <S.TextInput
                             type="text"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder={isIncome ? "e.g. Salary, Freelance" : "e.g. Uber, Groceries"}
+                            placeholder={isIncome ? t("transactionModal.descriptionIncomePh") : t("transactionModal.descriptionExpensePh")}
                         />
                     </S.LabelGroup>
 
                     <S.LabelGroup>
-                        <S.Label>Category</S.Label>
+                        <S.Label>{t("transactionModal.category")}</S.Label>
                         {isLoadingCats ? (
                             <S.LoaderContainer>
                                 <S.MutedSpinnerIcon><Loader2 /></S.MutedSpinnerIcon>
@@ -204,20 +213,20 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                                                 autoFocus
                                                 value={newCategoryName}
                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategoryName(e.target.value)}
-                                                placeholder="Name..."
+                                                placeholder={t("transactionModal.categoryNamePh")}
                                                 onBlur={() => setTimeout(() => setIsAddingCategory(false), 200)}
                                             />
                                         </S.NewCategoryForm>
                                     ) : (
                                         <S.CategoryButton type="button" onClick={(e: React.MouseEvent) => { e.preventDefault(); setIsAddingCategory(true) }} $isIncome={isIncome}>
                                             <S.CategoryIcon>+</S.CategoryIcon>
-                                            <S.CategoryName>New</S.CategoryName>
+                                            <S.CategoryName>{t("transactionModal.newCategory")}</S.CategoryName>
                                         </S.CategoryButton>
                                     )}
 
                                     {categories.length === 0 && !isAddingCategory && (
                                         <S.EmptyCategories>
-                                            No categories found.
+                                            {t("transactionModal.noCategories")}
                                         </S.EmptyCategories>
                                     )}
                                 </S.CategoriesGrid>
@@ -226,14 +235,14 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                     </S.LabelGroup>
 
                     <S.LabelGroup>
-                        <S.Label>Date</S.Label>
+                        <S.Label>{t("transactionModal.date")}</S.Label>
                         <S.DateInputContainer>
                             <S.DateIcon><Calendar size={18} /></S.DateIcon>
                             <S.DatePickerWrapper>
                                 <DatePicker
                                     selected={date}
                                     onChange={(newDate: Date | null) => setDate(newDate || new Date())}
-                                    dateFormat="MM/dd/yyyy"
+                                    dateFormat={dateFormat}
                                     className="custom-datepicker"
                                 />
                             </S.DatePickerWrapper>
@@ -246,7 +255,7 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsPending(e.target.checked)} 
                         />
                         <S.CheckboxLabelText>
-                            {isIncome ? "Upcoming Income (Pending)" : "Upcoming Bill (Pending)"}
+                            {isIncome ? t("transactionModal.pendingIncome") : t("transactionModal.pendingBill")}
                         </S.CheckboxLabelText>
                     </S.CheckboxContainer>
 
@@ -256,7 +265,13 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                         $isIncome={isIncome}
                     >
                         {isSubmitting ? <S.SpinnerIcon><Loader2 /></S.SpinnerIcon> : <Check size={20} strokeWidth={3} />}
-                        {isSubmitting ? "Saving..." : initialData ? "Save Changes" : `Add ${isIncome ? 'Income' : 'Expense'}`}
+                        {isSubmitting
+                            ? t("transactionModal.saving")
+                            : initialData
+                                ? t("transactionModal.saveChanges")
+                                : isIncome
+                                    ? t("transactionModal.addIncome")
+                                    : t("transactionModal.addExpense")}
                     </S.SaveButton>
                 </S.Body>
             </S.ModalContainer>

@@ -1,5 +1,6 @@
 import { X, ArrowUp, ArrowDown, Calendar, Clock, Check, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { TransactionService } from "@/services/transactions"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
@@ -20,6 +21,7 @@ interface Category {
 }
 
 export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionModalProps) {
+    const { t } = useTranslation()
     const { user } = useAuth()
     const [type, setType] = useState<'income' | 'expense'>('expense')
     const [amount, setAmount] = useState('')
@@ -57,15 +59,15 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
         if (!user) return
 
         if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-            toast.error("Por favor, insira um valor válido.")
+            toast.error(t("addTransaction.validAmount"))
             return
         }
         if (!description.trim()) {
-            toast.error("Por favor, insira uma descrição.")
+            toast.error(t("addTransaction.enterDescription"))
             return
         }
         if (!selectedCategory) {
-            toast.error("Por favor, selecione uma categoria.")
+            toast.error(t("addTransaction.selectCategory"))
             return
         }
 
@@ -81,12 +83,12 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
                 payment_date: new Date().toISOString(),
                 status: 'paid'
             })
-            toast.success("Transação adicionada com sucesso!")
+            toast.success(t("addTransaction.success"))
             window.dispatchEvent(new CustomEvent('transaction_updated'))
             onSave({})
             onClose()
-        } catch (error) {
-            toast.error("Erro ao salvar transação.")
+        } catch {
+            toast.error(t("addTransaction.saveError"))
         } finally {
             setIsSubmitting(false)
         }
@@ -98,7 +100,7 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
         <S.Overlay>
             <S.ModalContainer>
                 <S.Header>
-                    <S.Title>Nova Transação</S.Title>
+                    <S.Title>{t("addTransaction.title")}</S.Title>
                     <S.CloseButton onClick={onClose}>
                         <X size={20} />
                     </S.CloseButton>
@@ -112,7 +114,7 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
                             onClick={() => setType('expense')}
                         >
                             <ArrowDown size={18} />
-                            Despesa
+                            {t("addTransaction.expense")}
                         </S.TypeButton>
                         <S.TypeButton
                             $active={type === 'income'}
@@ -120,12 +122,12 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
                             onClick={() => setType('income')}
                         >
                             <ArrowUp size={18} />
-                            Receita
+                            {t("addTransaction.income")}
                         </S.TypeButton>
                     </S.TypeSelectorWrapper>
 
                     <S.LabelGroup>
-                        <S.Label>Valor</S.Label>
+                        <S.Label>{t("addTransaction.amount")}</S.Label>
                         <S.CurrencyInputWrapper>
                             <CurrencyInput
                                 value={amount}
@@ -136,17 +138,17 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
                     </S.LabelGroup>
 
                     <S.LabelGroup>
-                        <S.Label>Descrição</S.Label>
+                        <S.Label>{t("addTransaction.description")}</S.Label>
                         <S.DescriptionInput
                             type="text"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Ex: Compras no Mercado"
+                            placeholder={t("addTransaction.descriptionPh")}
                         />
                     </S.LabelGroup>
 
                     <S.LabelGroup>
-                        <S.Label>Categoria</S.Label>
+                        <S.Label>{t("addTransaction.category")}</S.Label>
                         {isLoading ? (
                             <S.CenteredContainer>
                                 <S.MutedSpinnerIcon><Loader2 /></S.MutedSpinnerIcon>
@@ -166,7 +168,7 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
                                     ))}
                                     {categories.length === 0 && (
                                         <S.EmptyCategoryMessage>
-                                            Nenhuma categoria encontrada.
+                                            {t("addTransaction.noCategories")}
                                         </S.EmptyCategoryMessage>
                                     )}
                                 </S.CategoryGrid>
@@ -176,17 +178,17 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
 
                     <S.TwoColsGrid>
                         <S.LabelGroup>
-                            <S.Label>Data</S.Label>
+                            <S.Label>{t("addTransaction.date")}</S.Label>
                             <S.InfoBox>
                                 <S.MutedIcon><Calendar size={18} /></S.MutedIcon>
-                                <S.InfoBoxText>Hoje</S.InfoBoxText>
+                                <S.InfoBoxText>{t("addTransaction.today")}</S.InfoBoxText>
                             </S.InfoBox>
                         </S.LabelGroup>
                         <S.LabelGroup>
-                            <S.Label>Hora</S.Label>
+                            <S.Label>{t("addTransaction.time")}</S.Label>
                             <S.InfoBox>
                                 <S.MutedIcon><Clock size={18} /></S.MutedIcon>
-                                <S.InfoBoxText>Now</S.InfoBoxText>
+                                <S.InfoBoxText>{t("addTransaction.now")}</S.InfoBoxText>
                             </S.InfoBox>
                         </S.LabelGroup>
                     </S.TwoColsGrid>
@@ -197,7 +199,11 @@ export function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionM
                         $type={type}
                     >
                         {isSubmitting ? <S.SpinnerIcon><Loader2 /></S.SpinnerIcon> : <Check size={20} strokeWidth={3} />}
-                        {isSubmitting ? "Salvando..." : `Adicionar ${type === 'expense' ? 'Despesa' : 'Receita'}`}
+                        {isSubmitting
+                            ? t("addTransaction.saving")
+                            : type === 'expense'
+                                ? t("addTransaction.addExpense")
+                                : t("addTransaction.addIncome")}
                     </S.SaveButton>
                 </S.Body>
             </S.ModalContainer>

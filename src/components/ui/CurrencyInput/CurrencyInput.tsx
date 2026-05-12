@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from "react"
+import React, { useMemo, useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
+import { useCurrency } from "@/contexts/CurrencyContext"
+import { formatCurrency } from "@/lib/utils"
+import { appLanguageToBcp47 } from "@/lib/i18nLocale"
 import { Input } from "@/components/ui/Input/Input"
 
 interface CurrencyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
@@ -7,28 +11,28 @@ interface CurrencyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
 }
 
 export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
-    ({ value, onChange, className, ...props }, ref) => {
+    ({ value, onChange, className, placeholder, ...props }, ref) => {
+        const { i18n } = useTranslation()
+        const { currency } = useCurrency()
+        const locale = useMemo(() => appLanguageToBcp47(i18n.language), [i18n.language])
         const [displayValue, setDisplayValue] = useState("")
 
         useEffect(() => {
             const numericValue = typeof value === "string" ? parseFloat(value) : value
             if (!isNaN(numericValue)) {
-                setDisplayValue(formatMoney(numericValue))
+                setDisplayValue(formatCurrency(numericValue, locale, currency))
             } else {
                 setDisplayValue("")
             }
-        }, [value])
+        }, [value, locale, currency])
 
-        const formatMoney = (value: number) => {
-            return value.toLocaleString("en-US", {
-                style: "currency",
-                currency: "USD",
-            })
-        }
+        const resolvedPlaceholder = useMemo(
+            () => placeholder ?? formatCurrency(0, locale, currency),
+            [placeholder, locale, currency],
+        )
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const inputValue = e.target.value
-
 
             const onlyDigits = inputValue.replace(/\D/g, "")
 
@@ -48,7 +52,7 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
                 value={displayValue}
                 onChange={handleChange}
                 className={className}
-                placeholder="$ 0.00"
+                placeholder={resolvedPlaceholder}
             />
         )
     }

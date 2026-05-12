@@ -60,6 +60,7 @@ export const Nav = styled.nav`
 
 export const NavItemButton = styled.button<{ $active?: boolean }>`
   width: 100%;
+  min-height: 2.75rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -88,6 +89,7 @@ export const FooterSection = styled.div`
 
 export const LogoutButton = styled.button`
   width: 100%;
+  min-height: 2.75rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;

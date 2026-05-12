@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate, Link } from "react-router-dom"
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
@@ -7,6 +8,7 @@ import finantreeIcon from "@/assets/finatree-icon.svg"
 import * as S from "./Auth.styles"
 
 export function Login() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const { signIn } = useAuth()
 
@@ -19,17 +21,18 @@ export function Login() {
         e.preventDefault()
 
         if (!email || !password) {
-            toast.error("Please fill in all fields")
+            toast.error(t("authLogin.fillFields"))
             return
         }
 
         try {
             setIsLoading(true)
             await signIn(email, password)
-            toast.success("Welcome back!")
+            toast.success(t("authLogin.welcomeBack"))
             navigate("/dashboard")
-        } catch (error: any) {
-            toast.error(error?.message || "Invalid email or password")
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : t("authLogin.invalidCredentials")
+            toast.error(message || t("authLogin.invalidCredentials"))
         } finally {
             setIsLoading(false)
         }
@@ -40,15 +43,15 @@ export function Login() {
             <S.AuthCard>
                 <S.Header>
                     <S.LogoWrapper>
-                        <img src={finantreeIcon} alt="Finantree Logo" />
+                        <img src={finantreeIcon} alt={t("nav.logoAlt")} />
                     </S.LogoWrapper>
-                    <S.Title>Welcome back</S.Title>
-                    <S.Subtitle>Enter your details to access your account.</S.Subtitle>
+                    <S.Title>{t("authLogin.title")}</S.Title>
+                    <S.Subtitle>{t("authLogin.subtitle")}</S.Subtitle>
                 </S.Header>
 
                 <S.Form onSubmit={handleSubmit}>
                     <S.InputGroup>
-                        <S.Label>Email</S.Label>
+                        <S.Label>{t("authLogin.email")}</S.Label>
                         <S.InputWrapper>
                             <Mail size={18} />
                             <S.Input
@@ -63,7 +66,7 @@ export function Login() {
                     </S.InputGroup>
 
                     <S.InputGroup>
-                        <S.Label>Password</S.Label>
+                        <S.Label>{t("authLogin.password")}</S.Label>
                         <S.InputWrapper>
                             <Lock size={18} />
                             <S.Input
@@ -84,17 +87,17 @@ export function Login() {
                     </S.InputGroup>
 
                     <S.ForgotPasswordLink>
-                        <Link to="/forgot-password">Forgot password?</Link>
+                        <Link to="/forgot-password">{t("authLogin.forgotPassword")}</Link>
                     </S.ForgotPasswordLink>
 
                     <S.SubmitButton type="submit" disabled={isLoading}>
-                        {isLoading ? <S.SpinnerIcon><Loader2 /></S.SpinnerIcon> : "Sign In"}
+                        {isLoading ? <S.SpinnerIcon><Loader2 /></S.SpinnerIcon> : t("authLogin.signIn")}
                     </S.SubmitButton>
                 </S.Form>
 
                 <S.Footer>
-                    Don't have an account?
-                    <Link to="/register">Sign up</Link>
+                    {t("authLogin.footer")}{' '}
+                    <Link to="/register">{t("authLogin.signUp")}</Link>
                 </S.Footer>
             </S.AuthCard>
         </S.AuthContainer>

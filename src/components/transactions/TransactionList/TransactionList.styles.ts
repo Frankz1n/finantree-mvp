@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import { media } from '@/styles/media';
 
 const spin = keyframes`
   from { transform: rotate(0deg); }
@@ -53,10 +54,20 @@ export const EmptyStateText = styled.p`
 `;
 
 export const DateGroupWrapper = styled.div`
-  border-radius: 32px;
+  border-radius: 1.25rem;
   background-color: #ffffff;
-  padding: 1.5rem;
+  padding: 1rem 0.85rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+  ${media.md} {
+    border-radius: 1.75rem;
+    padding: 1.35rem 1.25rem;
+  }
+
+  ${media.lg} {
+    border-radius: 32px;
+    padding: 1.5rem;
+  }
 `;
 
 export const DateGroupHeader = styled.div`
@@ -110,9 +121,16 @@ export const ActionsGroup = styled.div`
 
 export const TransactionItem = styled.div`
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 0.65rem;
   position: relative;
+  flex-wrap: wrap;
+
+  ${media.md} {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 1rem;
+  }
 
   &:hover ${ActionsGroup} {
     opacity: 1;
@@ -182,18 +200,33 @@ export const TransactionCategory = styled.p`
 
 export const TransactionActionsArea = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
   flex-shrink: 0;
-  margin-left: 0.5rem;
-  gap: 0.375rem;
+  margin-left: auto;
+  gap: 0.35rem;
+  width: 100%;
+
+  ${media.md} {
+    flex-direction: column;
+    align-items: flex-end;
+    width: auto;
+    margin-left: 0.5rem;
+    gap: 0.375rem;
+  }
 `;
 
 export const TransactionAmount = styled.div<{ $type: 'income' | 'expense' }>`
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 2.8vw, 0.875rem);
   font-weight: 700;
   white-space: nowrap;
   color: ${({ $type }) => $type === 'income' ? '#10b981' : '#0f172a'};
+  margin-right: auto;
+
+  ${media.md} {
+    margin-right: 0;
+  }
 `;
 
 export const IconButton = styled.button<{ $variant: 'edit' | 'delete' }>`

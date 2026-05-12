@@ -1,4 +1,5 @@
 import { X, Users, Shield, ShieldCheck } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import * as S from "./TransparencyConsentModal.styles"
 
 interface TransparencyConsentModalProps {
@@ -16,6 +17,7 @@ export function TransparencyConsentModal({
     onDecline,
     hostName
 }: TransparencyConsentModalProps) {
+    const { t } = useTranslation()
     if (!isOpen) return null
 
     return (
@@ -30,25 +32,21 @@ export function TransparencyConsentModal({
                         <Users size={32} strokeWidth={2.5} />
                     </S.IconContainer>
 
-                    <S.Title>
-                        Entrar na Família de {hostName}?
-                    </S.Title>
+                    <S.Title>{t("transparency.title", { host: hostName })}</S.Title>
 
                     <S.Description>
-                        {hostName} definiu este grupo com transparência <S.HighlightText>ABERTA</S.HighlightText>.
-                        <br />
-                        Você deseja compartilhar seu histórico de transações?
+                        {t("transparency.description", { host: hostName })}
                     </S.Description>
 
                     <S.ButtonsContainer>
                         <S.ConfirmButton onClick={onConfirm}>
                             <ShieldCheck size={18} />
-                            Sim, Compartilhar Tudo
+                            {t("transparency.confirm")}
                         </S.ConfirmButton>
 
                         <S.DeclineButton onClick={onDecline}>
                             <Shield size={18} />
-                            Não, Manter Privado
+                            {t("transparency.decline")}
                         </S.DeclineButton>
                     </S.ButtonsContainer>
                 </S.ContentContainer>

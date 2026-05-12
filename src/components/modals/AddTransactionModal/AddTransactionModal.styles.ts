@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import { media } from '@/styles/media';
 
 const spin = keyframes`
   from { transform: rotate(0deg); }
@@ -26,25 +27,46 @@ export const Overlay = styled.div`
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   background-color: rgba(15, 23, 42, 0.5);
-  padding: 1rem;
+  padding: 0;
   backdrop-filter: blur(4px);
+
+  ${media.md} {
+    align-items: center;
+    padding: 1rem;
+  }
 `;
 
 export const ModalContainer = styled.div`
   position: relative;
   width: 100%;
-  max-width: 28rem; /* 448px */
-  overflow: hidden;
-  border-radius: 32px;
+  max-width: 100%;
+  max-height: min(92dvh, 720px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 1.25rem 1.25rem 0 0;
   background-color: #ffffff;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: fadeInZoom 0.2s ease-out;
 
   @keyframes fadeInZoom {
-    from { opacity: 0; transform: scale(0.95); }
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  ${media.md} {
+    max-width: 28rem;
+    max-height: none;
+    overflow: hidden;
+    border-radius: 32px;
+    animation: fadeInZoomMd 0.2s ease-out;
+  }
+
+  @keyframes fadeInZoomMd {
+    from { opacity: 0; transform: scale(0.96); }
     to { opacity: 1; transform: scale(1); }
   }
 `;
@@ -53,13 +75,19 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 1.5rem 0.5rem;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0.35rem;
+
+  ${media.md} {
+    padding: 1.5rem 1.5rem 0.5rem;
+  }
 `;
 
 export const Title = styled.h2`
-  font-size: 1.25rem;
+  font-size: clamp(1.05rem, 3.5vw, 1.25rem);
   font-weight: 700;
   color: #0f172a;
+  line-height: 1.2;
 `;
 
 export const CloseButton = styled.button`
@@ -79,11 +107,17 @@ export const CloseButton = styled.button`
 `;
 
 export const Body = styled.div`
-  padding: 1.5rem;
-  padding-top: 0.5rem;
+  padding: 1rem 1rem 1.25rem;
+  padding-top: 0.35rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.15rem;
+
+  ${media.md} {
+    padding: 1.5rem;
+    padding-top: 0.5rem;
+    gap: 1.5rem;
+  }
 `;
 
 export const TypeSelectorWrapper = styled.div`

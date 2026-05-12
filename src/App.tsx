@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { DashboardLayout } from './components/layout/DashboardLayout/DashboardLayout'
 import { Home } from './pages/Home/Home'
 import { Statements } from './pages/Statements/Statements'
+import { Profile } from './pages/Profile/Profile'
+import { Recurring } from './pages/Recurring/Recurring'
+import { Garden } from './pages/Garden/Garden'
 import { Login } from './pages/Auth/Login'
 import { Register } from './pages/Auth/Register'
 import { ForgotPassword } from './pages/Auth/ForgotPassword'
@@ -35,7 +38,9 @@ function App() {
 
         <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/extract" element={<ProtectedRoute><Statements /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><div>Profile</div></ProtectedRoute>} />
+        <Route path="/recurring" element={<ProtectedRoute><Recurring /></ProtectedRoute>} />
+        <Route path="/garden" element={<ProtectedRoute><Garden /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

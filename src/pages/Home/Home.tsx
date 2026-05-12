@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Wallet, TrendingUp } from "lucide-react"
 import * as S from "./Home.styles"
 import { TransactionModal } from "@/components/modals/TransactionModal/TransactionModal";
 import { useAuth } from "@/hooks/useAuth";
 import { TransactionService } from "@/services/transactions";
+import { buildGreetingDisplayName, getCurrentUserProfile, type PublicUserProfileRow } from "@/services/users";
 import { Transaction } from "@/types/finance";
 import { MonthFilter } from "@/components/ui/MonthFilter/MonthFilter";
 import { TransactionList } from "@/components/transactions/TransactionList/TransactionList";
-import { formatCurrency } from "@/lib/utils";
+import { useMoneyFormat } from "@/hooks/useMoneyFormat";
 import { toast } from "sonner";
 
 export function Home() {
+    const { t } = useTranslation();
     const { user } = useAuth();
+    const formatMoney = useMoneyFormat();
     const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
     const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
     const [editTransactionData, setEditTransactionData] = useState<Transaction | null>(null);
@@ -20,6 +24,7 @@ export function Home() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [clearingId, setClearingId] = useState<string | null>(null);
+    const [userProfile, setUserProfile] = useState<PublicUserProfileRow | null>(null);
 
     const loadTransactions = async () => {
         if (!user) return;
@@ -42,6 +47,20 @@ export function Home() {
         return () => window.removeEventListener('transaction_updated', onTransactionUpdated);
     }, [user, selectedDate]);
 
+    useEffect(() => {
+        if (!user) {
+            setUserProfile(null);
+            return;
+        }
+        let cancelled = false;
+        void getCurrentUserProfile(user.id).then((row) => {
+            if (!cancelled) setUserProfile(row);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [user]);
+
     const markTransactionAsCleared = async (id: string) => {
         if (clearingId) return; // prevent double-click while another is in flight
 
@@ -55,12 +74,12 @@ export function Home() {
         try {
             // 2. Persist to Supabase
             await TransactionService.updateTransaction(id, { status: 'paid' });
-            toast.success('Transaction cleared successfully!');
+            toast.success(t('home.transactionCleared'));
         } catch (e) {
             // 3. Rollback on error
             console.error('Failed to clear transaction:', e);
             setTransactions(previousTransactions);
-            toast.error('Failed to clear transaction. Please try again.');
+            toast.error(t('home.transactionClearFailed'));
         } finally {
             setClearingId(null);
         }
@@ -84,6 +103,10 @@ export function Home() {
         }
     };
 
+    const greetingName = user
+        ? buildGreetingDisplayName(user, userProfile, t('home.greetingFallback'))
+        : t('home.greetingFallback');
+
     const pending = transactions.filter(t => t.status === 'pending');
 
     const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
@@ -94,8 +117,10 @@ export function Home() {
         <S.HomeContainer>
             <S.HeaderArea>
                 <S.TitleBlock>
-                    <S.Title>Hi, {user?.user_metadata?.first_name || 'there'}! 👋</S.Title>
-                    <S.Subtitle>Let's grow your wealth.</S.Subtitle>
+                    <S.Title>
+                        {t('home.greeting', { name: greetingName })}
+                    </S.Title>
+                    <S.Subtitle>{t('home.subtitle')}</S.Subtitle>
                 </S.TitleBlock>
                 <MonthFilter selectedDate={selectedDate} onChange={setSelectedDate} />
             </S.HeaderArea>
@@ -105,38 +130,40 @@ export function Home() {
                     <S.AvailableFundsCard>
                         <S.TreeIconWrapper>🌳</S.TreeIconWrapper>
                         <S.FundsInfo>
-                            <S.FundsLabel>AVAILABLE FUNDS</S.FundsLabel>
-                            <S.FundsAmount $isNegative={availableFunds < 0}>{formatCurrency(availableFunds)}</S.FundsAmount>
+                            <S.FundsLabel>{t('home.availableFunds')}</S.FundsLabel>
+                            <S.FundsAmount $isNegative={availableFunds < 0}>{formatMoney(availableFunds)}</S.FundsAmount>
                             <S.FundsPillsRow>
-                                <S.FundPill $variant="green">Incomes: +{formatCurrency(totalIncome)}</S.FundPill>
+                                <S.FundPill $variant="green">
+                                    {t('home.incomesLabel', { amount: formatMoney(totalIncome) })}
+                                </S.FundPill>
                             </S.FundsPillsRow>
                         </S.FundsInfo>
                     </S.AvailableFundsCard>
 
                     <S.SectionOverview>
                         <S.SectionTitleWrapper>
-                            <S.SectionTitle>Quick Actions</S.SectionTitle>
+                            <S.SectionTitle>{t('home.quickActions')}</S.SectionTitle>
                         </S.SectionTitleWrapper>
                         <S.QuickActionsContainer>
                             <S.QuickActionButton $colorVariant="dark" onClick={() => { setEditTransactionData(null); setIsExpenseModalOpen(true) }}>
                                 <S.ActionIconWrapper>
                                     <Plus size={28} strokeWidth={2.5} />
                                 </S.ActionIconWrapper>
-                                <S.ActionLabel>Add Expense</S.ActionLabel>
+                                <S.ActionLabel>{t('home.addExpense')}</S.ActionLabel>
                             </S.QuickActionButton>
 
                             <S.QuickActionButton $colorVariant="green" onClick={() => { setEditTransactionData(null); setIsIncomeModalOpen(true) }}>
                                 <S.ActionIconWrapper>
                                     <Wallet size={28} strokeWidth={2.5} />
                                 </S.ActionIconWrapper>
-                                <S.ActionLabel>Add Income</S.ActionLabel>
+                                <S.ActionLabel>{t('home.addIncome')}</S.ActionLabel>
                             </S.QuickActionButton>
 
                             <S.QuickActionButton $colorVariant="purple">
                                 <S.ActionIconWrapper>
                                     <TrendingUp size={28} strokeWidth={2.5} />
                                 </S.ActionIconWrapper>
-                                <S.ActionLabel>New Goal</S.ActionLabel>
+                                <S.ActionLabel>{t('home.newGoal')}</S.ActionLabel>
                             </S.QuickActionButton>
                         </S.QuickActionsContainer>
                     </S.SectionOverview>
@@ -144,9 +171,9 @@ export function Home() {
                     {pending.length > 0 && (
                         <S.RecentActivityCard style={{ marginTop: '24px' }}>
                             <S.SectionTitleWrapper>
-                                <S.SectionTitle>Upcoming Bills / Pending</S.SectionTitle>
+                                <S.SectionTitle>{t('home.upcomingBills')}</S.SectionTitle>
                             </S.SectionTitleWrapper>
-                            {isLoading ? <p style={{ padding: '16px' }}>Loading...</p> : (
+                            {isLoading ? <p style={{ padding: '16px' }}>{t('common.loading')}</p> : (
                                 <TransactionList
                                     transactions={pending}
                                     onEdit={handleEdit}
@@ -162,11 +189,11 @@ export function Home() {
                 <S.RightColumn>
                     <S.RecentActivityCard>
                         <S.SectionTitleWrapper>
-                            <S.SectionTitle>Recent Activity</S.SectionTitle>
-                            <S.SeeAllLink>See All ({transactions.length})</S.SeeAllLink>
+                            <S.SectionTitle>{t('home.recentActivity')}</S.SectionTitle>
+                            <S.SeeAllLink>{t('home.seeAll', { count: transactions.length })}</S.SeeAllLink>
                         </S.SectionTitleWrapper>
 
-                        {isLoading ? <p style={{ padding: '16px' }}>Loading...</p> : (
+                        {isLoading ? <p style={{ padding: '16px' }}>{t('common.loading')}</p> : (
                             <TransactionList
                                 transactions={transactions}
                                 onEdit={handleEdit}

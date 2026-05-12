@@ -1,5 +1,8 @@
+import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { Transaction } from "@/types/finance"
-import { formatCurrency } from "@/lib/utils"
+import { useMoneyFormat } from "@/hooks/useMoneyFormat"
+import { appLanguageToBcp47 } from "@/lib/i18nLocale"
 import { Calendar, Pencil, Trash2, Check, Loader2 } from "lucide-react"
 import * as S from "./TransactionList.styles"
 
@@ -12,12 +15,14 @@ interface TransactionListProps {
 }
 
 const TransactionList = ({ transactions, onEdit, onDelete, onMarkAsPaid, clearingId }: TransactionListProps) => {
+    const { t, i18n } = useTranslation()
+    const formatMoney = useMoneyFormat()
+    const intlLocale = useMemo(() => appLanguageToBcp47(i18n.language), [i18n.language])
 
     const groupedTransactions = transactions.reduce((acc, transaction) => {
-        // Parse date as UTC to avoid timezone-shift (e.g. Apr 13 becoming Apr 12)
         const [year, month, day] = transaction.date.split('T')[0].split('-').map(Number);
         const utcDate = new Date(Date.UTC(year, month - 1, day));
-        const date = new Intl.DateTimeFormat('en-US', {
+        const date = new Intl.DateTimeFormat(intlLocale, {
             month: 'long',
             day: 'numeric',
             year: 'numeric',
@@ -36,8 +41,8 @@ const TransactionList = ({ transactions, onEdit, onDelete, onMarkAsPaid, clearin
                 <S.EmptyStateIcon>
                     🔍
                 </S.EmptyStateIcon>
-                <S.EmptyStateTitle>No transactions found</S.EmptyStateTitle>
-                <S.EmptyStateText>Try adjusting your filters or add a new transaction.</S.EmptyStateText>
+                <S.EmptyStateTitle>{t('transactionList.noTitle')}</S.EmptyStateTitle>
+                <S.EmptyStateText>{t('transactionList.noHint')}</S.EmptyStateText>
             </S.EmptyStateWrapper>
         )
     }
@@ -54,50 +59,50 @@ const TransactionList = ({ transactions, onEdit, onDelete, onMarkAsPaid, clearin
                     </S.DateGroupHeader>
 
                     <S.TransactionsListWrapper>
-                        {items.map((t) => (
-                            <S.TransactionItem key={t.id}>
-                                <S.TransactionIconWrapper $type={t.type as 'income' | 'expense'}>
-                                    <S.TransactionIconText>{t.categories?.icon || '📄'}</S.TransactionIconText>
+                        {items.map((tItem) => (
+                            <S.TransactionItem key={tItem.id}>
+                                <S.TransactionIconWrapper $type={tItem.type as 'income' | 'expense'}>
+                                    <S.TransactionIconText>{tItem.categories?.icon || '📄'}</S.TransactionIconText>
                                 </S.TransactionIconWrapper>
                                 <S.TransactionDetails>
-                                    <S.TransactionDescription>{t.description}</S.TransactionDescription>
+                                    <S.TransactionDescription>{tItem.description}</S.TransactionDescription>
                                     <S.TransactionMetaRow>
-                                        {t.status === 'pending' ? (
+                                        {tItem.status === 'pending' ? (
                                             <S.TransactionStatus>
-                                                PENDING
+                                                {t('transactionList.pending').toUpperCase()}
                                             </S.TransactionStatus>
                                         ) : (
                                             <S.TransactionStatus $cleared>
-                                                CLEARED
+                                                {t('transactionList.cleared').toUpperCase()}
                                             </S.TransactionStatus>
                                         )}
                                         <S.TransactionDot />
                                         <S.TransactionCategory>
-                                            {t.categories?.name || 'General'}
+                                            {tItem.categories?.name || t('statements.general')}
                                         </S.TransactionCategory>
                                     </S.TransactionMetaRow>
                                 </S.TransactionDetails>
                                 <S.TransactionActionsArea>
-                                    <S.TransactionAmount $type={t.type as 'income' | 'expense'}>
-                                        {t.type === 'expense' ? '-' : '+'}{formatCurrency(t.amount)}
+                                    <S.TransactionAmount $type={tItem.type as 'income' | 'expense'}>
+                                        {tItem.type === 'expense' ? '-' : '+'}{formatMoney(tItem.amount)}
                                     </S.TransactionAmount>
 
-                                    {(onEdit || onDelete || (onMarkAsPaid && t.status === 'pending')) && (
+                                    {(onEdit || onDelete || (onMarkAsPaid && tItem.status === 'pending')) && (
                                         <S.ActionsGroup>
-                                            {onMarkAsPaid && t.status === 'pending' && (
+                                            {onMarkAsPaid && tItem.status === 'pending' && (
                                                 <S.IconButton
                                                     $variant="edit" 
-                                                    onClick={() => onMarkAsPaid(t.id)}
-                                                    title="Mark as Cleared"
-                                                    disabled={clearingId === t.id}
+                                                    onClick={() => onMarkAsPaid(tItem.id)}
+                                                    title={t('transactionList.markCleared')}
+                                                    disabled={clearingId === tItem.id}
                                                     style={{
                                                         color: '#10b981',
                                                         backgroundColor: '#d1fae5',
-                                                        opacity: clearingId === t.id ? 0.7 : 1,
-                                                        cursor: clearingId === t.id ? 'not-allowed' : 'pointer',
+                                                        opacity: clearingId === tItem.id ? 0.7 : 1,
+                                                        cursor: clearingId === tItem.id ? 'not-allowed' : 'pointer',
                                                     }}
                                                 >
-                                                    {clearingId === t.id
+                                                    {clearingId === tItem.id
                                                         ? <S.SpinnerIcon><Loader2 size={14} /></S.SpinnerIcon>
                                                         : <Check size={14} />}
                                                 </S.IconButton>
@@ -105,8 +110,8 @@ const TransactionList = ({ transactions, onEdit, onDelete, onMarkAsPaid, clearin
                                             {onEdit && (
                                                 <S.IconButton
                                                     $variant="edit"
-                                                    onClick={() => onEdit(t)}
-                                                    title="Edit"
+                                                    onClick={() => onEdit(tItem)}
+                                                    title={t('transactionList.edit')}
                                                 >
                                                     <Pencil size={14} />
                                                 </S.IconButton>
@@ -114,8 +119,8 @@ const TransactionList = ({ transactions, onEdit, onDelete, onMarkAsPaid, clearin
                                             {onDelete && (
                                                 <S.IconButton
                                                     $variant="delete"
-                                                    onClick={() => onDelete(t.id)}
-                                                    title="Delete"
+                                                    onClick={() => onDelete(tItem.id)}
+                                                    title={t('transactionList.delete')}
                                                 >
                                                     <Trash2 size={14} />
                                                 </S.IconButton>

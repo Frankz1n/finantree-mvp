@@ -1,30 +1,52 @@
 import styled from 'styled-components';
+import { media } from '@/styles/media';
 
 export const Overlay = styled.div`
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   background-color: rgba(15, 23, 42, 0.5);
-  padding: 1rem;
+  padding: 0;
   backdrop-filter: blur(4px);
+
+  ${media.md} {
+    align-items: center;
+    padding: 1rem;
+  }
 `;
 
 export const ModalContainer = styled.div`
   position: relative;
   width: 100%;
-  max-width: 28rem;
-  overflow: hidden;
-  border-radius: 32px;
+  max-width: 100%;
+  max-height: min(92dvh, 680px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 1.25rem 1.25rem 0 0;
   background-color: #ffffff;
-  padding: 2rem;
+  padding: 1.5rem 1.25rem 1.75rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: fadeInZoom 0.2s ease-out;
 
   @keyframes fadeInZoom {
-    from { opacity: 0; transform: scale(0.95); }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  ${media.md} {
+    max-width: 28rem;
+    max-height: none;
+    overflow: hidden;
+    border-radius: 32px;
+    padding: 2rem;
+    animation: fadeInZoomMd 0.2s ease-out;
+  }
+
+  @keyframes fadeInZoomMd {
+    from { opacity: 0; transform: scale(0.96); }
     to { opacity: 1; transform: scale(1); }
   }
 `;

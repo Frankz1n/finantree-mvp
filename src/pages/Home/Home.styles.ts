@@ -1,40 +1,61 @@
 import styled from 'styled-components';
+import { media } from '@/styles/media';
 
 export const HomeContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  padding: 1rem 0;
+  gap: 1.5rem;
+  padding: 0.25rem 0 0.5rem;
   max-width: 1200px;
   width: 100%;
+
+  ${media.md} {
+    gap: 2rem;
+    padding: 0.5rem 0 1rem;
+  }
+
+  ${media.lg} {
+    gap: 2.5rem;
+  }
 `;
 
 export const HeaderArea = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
   width: 100%;
+
+  ${media.md} {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
 `;
 
 export const TitleBlock = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
 `;
 
 export const Title = styled.h1`
-  font-size: 2rem;
+  font-size: clamp(1.25rem, 4vw + 0.35rem, 2rem);
   font-weight: 800;
   color: #0f172a;
   margin: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   letter-spacing: -0.02em;
+  line-height: 1.2;
 `;
 
 export const Subtitle = styled.p`
-  font-size: 1rem;
+  font-size: clamp(0.8125rem, 2vw, 1rem);
   color: #94a3b8;
   margin: 0;
   font-weight: 600;
@@ -56,11 +77,11 @@ export const StreakPill = styled.div`
 export const MainContentGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2.5rem;
+  gap: 1.5rem;
 
-  @media (min-width: 1024px) {
+  ${media.lg} {
     grid-template-columns: 2fr 1fr;
-    gap: 3rem;
+    gap: 2.5rem;
   }
 `;
 
@@ -78,30 +99,52 @@ export const RightColumn = styled.div`
 
 export const Card = styled.div`
   background-color: #ffffff;
-  border-radius: 1.5rem;
-  padding: 1.5rem;
+  border-radius: 1.25rem;
+  padding: 1.15rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 10px 15px -3px rgba(0, 0, 0, 0.02);
   border: 1px solid #f8fafc;
+
+  ${media.md} {
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+  }
 `;
 
 export const AvailableFundsCard = styled(Card)`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 2.5rem;
-  gap: 2.5rem;
-  border-radius: 2rem;
+  text-align: center;
+  padding: 1.25rem 1rem;
+  gap: 1.25rem;
+  border-radius: 1.25rem;
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+
+  ${media.sm} {
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
+    padding: 1.5rem 1.25rem;
+    gap: 1.5rem;
+    border-radius: 1.5rem;
+  }
+
+  ${media.md} {
+    padding: 2rem 1.75rem;
+    gap: 2rem;
+    border-radius: 2rem;
+  }
 `;
 
 export const TreeIconWrapper = styled.div`
-  width: 7rem;
-  height: 7rem;
+  width: clamp(4.5rem, 22vw, 7rem);
+  height: clamp(4.5rem, 22vw, 7rem);
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.5rem;
+  font-size: clamp(2rem, 10vw, 3.5rem);
   flex-shrink: 0;
 `;
 
@@ -109,6 +152,14 @@ export const FundsInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+
+  ${media.sm} {
+    align-items: flex-start;
+    width: auto;
+  }
 `;
 
 export const FundsLabel = styled.span`
@@ -120,12 +171,13 @@ export const FundsLabel = styled.span`
 `;
 
 export const FundsAmount = styled.h2<{ $isNegative?: boolean }>`
-  font-size: 3.5rem;
+  font-size: clamp(1.75rem, 7vw + 0.5rem, 3.5rem);
   font-weight: 800;
   color: ${({ $isNegative }) => $isNegative ? '#ef4444' : '#0f172a'};
   margin: 0;
-  line-height: 1;
+  line-height: 1.05;
   letter-spacing: -0.02em;
+  word-break: break-word;
 `;
 
 export const FundsPillsRow = styled.div`
@@ -163,10 +215,11 @@ export const SectionTitleWrapper = styled.div`
 `;
 
 export const SectionTitle = styled.h3`
-  font-size: 1.125rem;
+  font-size: clamp(1rem, 3vw, 1.125rem);
   font-weight: 800;
   color: #334155;
   margin: 0;
+  line-height: 1.25;
 `;
 
 export const SeeAllLink = styled.a`
@@ -182,24 +235,48 @@ export const SeeAllLink = styled.a`
 `;
 
 export const QuickActionsContainer = styled.div`
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
   width: 100%;
+
+  ${media.sm} {
+    gap: 0.75rem;
+  }
+
+  ${media.md} {
+    gap: 1rem;
+  }
 `;
 
 export const QuickActionButton = styled.button<{ $colorVariant: 'dark' | 'green' | 'purple' }>`
-  flex: 1;
   aspect-ratio: 1;
-  max-height: 11rem;
-  border-radius: 2rem;
+  width: 100%;
+  max-height: 10rem;
+  min-height: 0;
+  border-radius: 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.5rem;
   border: none;
   cursor: pointer;
   transition: transform 0.2s, filter 0.2s;
+  padding: 0.5rem;
+
+  ${media.sm} {
+    border-radius: 1.5rem;
+    gap: 0.75rem;
+    padding: 0.65rem;
+  }
+
+  ${media.md} {
+    border-radius: 2rem;
+    gap: 1rem;
+    max-height: 11rem;
+    padding: 0.75rem;
+  }
   
   &:hover {
     transform: translateY(-2px);
@@ -236,24 +313,52 @@ export const QuickActionButton = styled.button<{ $colorVariant: 'dark' | 'green'
 
 export const ActionIconWrapper = styled.div`
   background-color: rgba(255, 255, 255, 0.15);
-  padding: 1.25rem;
+  padding: 0.65rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  ${media.sm} {
+    padding: 0.85rem;
+  }
+
+  ${media.md} {
+    padding: 1.25rem;
+  }
+
+  svg {
+    width: clamp(1.25rem, 5vw, 1.75rem);
+    height: clamp(1.25rem, 5vw, 1.75rem);
+  }
 `;
 
 export const ActionLabel = styled.span`
-  font-size: 0.875rem;
+  font-size: clamp(0.65rem, 2.5vw, 0.875rem);
   font-weight: 800;
+  text-align: center;
+  line-height: 1.2;
+  padding: 0 0.15rem;
 `;
 
 export const RecentActivityCard = styled(Card)`
-  padding: 2rem;
-  border-radius: 2rem;
+  padding: 1.25rem;
+  border-radius: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
+
+  ${media.md} {
+    padding: 1.75rem;
+    border-radius: 1.75rem;
+    gap: 1.25rem;
+  }
+
+  ${media.lg} {
+    padding: 2rem;
+    border-radius: 2rem;
+    gap: 1.5rem;
+  }
 `;
 
 export const TransactionList = styled.div`

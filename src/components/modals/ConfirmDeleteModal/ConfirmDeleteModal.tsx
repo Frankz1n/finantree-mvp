@@ -1,5 +1,6 @@
 import { AlertTriangle, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import * as S from "./ConfirmDeleteModal.styles"
 
 interface ConfirmDeleteModalProps {
@@ -11,6 +12,7 @@ interface ConfirmDeleteModalProps {
 }
 
 export function ConfirmDeleteModal({ isOpen, title, description, onConfirm, onClose }: ConfirmDeleteModalProps) {
+    const { t } = useTranslation()
     const [isDeleting, setIsDeleting] = useState(false)
 
     if (!isOpen) return null
@@ -38,11 +40,11 @@ export function ConfirmDeleteModal({ isOpen, title, description, onConfirm, onCl
 
                     <S.ButtonGroup>
                         <S.ConfirmButton onClick={handleConfirm} disabled={isDeleting}>
-                            {isDeleting ? <S.SpinnerIcon><Loader2 /></S.SpinnerIcon> : "Sim, excluir"}
+                            {isDeleting ? <S.SpinnerIcon><Loader2 /></S.SpinnerIcon> : t("confirmDelete.yesDelete")}
                         </S.ConfirmButton>
 
                         <S.CancelButton onClick={onClose} disabled={isDeleting}>
-                            Cancelar
+                            {t("confirmDelete.cancel")}
                         </S.CancelButton>
                     </S.ButtonGroup>
                 </S.Body>

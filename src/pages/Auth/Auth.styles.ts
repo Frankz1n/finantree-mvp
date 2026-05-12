@@ -1,4 +1,5 @@
 import styled, { keyframes } from "styled-components"
+import { media } from "@/styles/media"
 
 const spin = keyframes`
   from { transform: rotate(0deg); }
@@ -17,21 +18,40 @@ const fadeIn = keyframes`
 
 export const AuthContainer = styled.div`
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f8fafc;
-  padding: 1.5rem;
+  padding: 0.75rem;
+  width: 100%;
+  max-width: 100vw;
+
+  ${media.sm} {
+    padding: 1.25rem;
+  }
 `
 
 export const AuthCard = styled.div`
   width: 100%;
   max-width: 28rem;
+  max-height: min(100dvh - 1.5rem, 900px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background-color: #ffffff;
-  border-radius: 24px;
+  border-radius: 1.25rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 2.5rem 2rem;
+  padding: 1.5rem 1.25rem;
   animation: ${fadeIn} 0.4s ease-out forwards;
+
+  ${media.sm} {
+    border-radius: 24px;
+    padding: 2.25rem 1.75rem;
+  }
+
+  ${media.md} {
+    padding: 2.5rem 2rem;
+  }
 `
 
 export const Header = styled.div`
@@ -59,10 +79,11 @@ export const LogoWrapper = styled.div`
 `
 
 export const Title = styled.h1`
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
   font-weight: 700;
   color: #0f172a;
   margin-bottom: 0.5rem;
+  line-height: 1.25;
 `
 
 export const Subtitle = styled.p`

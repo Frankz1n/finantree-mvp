@@ -1,12 +1,14 @@
 import { Search, Download, Calendar, ArrowUpRight, ArrowDownRight, ArrowRightLeft } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as S from './Statements.styles';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { formatCurrency } from '@/lib/utils';
+import { useMoneyFormat } from '@/hooks/useMoneyFormat';
+import { appLanguageToBcp47 } from '@/lib/i18nLocale';
 import { Skeleton } from '@/components/ui/Skeleton/Skeleton';
 
-type TransactionTypeFilter = 'All' | 'Income' | 'Expense';
+type TransactionTypeFilter = 'all' | 'income' | 'expense';
 const ALL_MONTHS_VALUE = 'all';
 type StatementTransaction = {
     id: string;
@@ -32,24 +34,6 @@ const parseUTCDate = (isoDate: string) => {
     return new Date(Date.UTC(year, month - 1, day));
 };
 
-const toCSVDate = (isoDate: string) => {
-    return new Intl.DateTimeFormat('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        year: 'numeric',
-        timeZone: 'UTC',
-    }).format(parseUTCDate(isoDate));
-};
-
-const toGroupDate = (isoDate: string) => {
-    return new Intl.DateTimeFormat('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-        timeZone: 'UTC',
-    }).format(parseUTCDate(isoDate));
-};
-
 const escapeCSVValue = (value: string | number) => {
     const stringValue = String(value ?? '');
     if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
@@ -58,27 +42,58 @@ const escapeCSVValue = (value: string | number) => {
     return stringValue;
 };
 
-const monthValueToLabel = (monthValue: string) => {
-    if (monthValue === ALL_MONTHS_VALUE) return 'All months';
-    const [year, month] = monthValue.split('-').map(Number);
-    return new Intl.DateTimeFormat('en-US', {
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC',
-    }).format(new Date(Date.UTC(year, month - 1, 1)));
-};
-
-const getCategoryLabel = (transaction: StatementTransaction) => {
-    return transaction.categories?.name || transaction.category_id || 'General';
-};
-
 export function Statements() {
+    const { t, i18n } = useTranslation();
+    const formatMoney = useMoneyFormat();
     const { user } = useAuth();
     const [transactions, setTransactions] = useState<StatementTransaction[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMonth, setSelectedMonth] = useState(getMonthValue(new Date()));
-    const [transactionType, setTransactionType] = useState<TransactionTypeFilter>('All');
+    const [transactionType, setTransactionType] = useState<TransactionTypeFilter>('all');
     const [isLoading, setIsLoading] = useState(true);
+
+    const intlLocale = useMemo(() => appLanguageToBcp47(i18n.language), [i18n.language]);
+
+    const toCSVDate = useCallback(
+        (isoDate: string) =>
+            new Intl.DateTimeFormat(intlLocale, {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric',
+                timeZone: 'UTC',
+            }).format(parseUTCDate(isoDate)),
+        [intlLocale],
+    );
+
+    const toGroupDate = useCallback(
+        (isoDate: string) =>
+            new Intl.DateTimeFormat(intlLocale, {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                timeZone: 'UTC',
+            }).format(parseUTCDate(isoDate)),
+        [intlLocale],
+    );
+
+    const monthValueToLabel = useCallback(
+        (monthValue: string) => {
+            if (monthValue === ALL_MONTHS_VALUE) return t('statements.allMonths');
+            const [year, month] = monthValue.split('-').map(Number);
+            return new Intl.DateTimeFormat(intlLocale, {
+                month: 'long',
+                year: 'numeric',
+                timeZone: 'UTC',
+            }).format(new Date(Date.UTC(year, month - 1, 1)));
+        },
+        [intlLocale, t],
+    );
+
+    const getCategoryLabel = useCallback(
+        (transaction: StatementTransaction) =>
+            transaction.categories?.name || transaction.category_id || t('statements.general'),
+        [t],
+    );
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -117,17 +132,22 @@ export function Statements() {
         };
     }, [user]);
 
+    const typeIncomeLabel = t('statements.typeIncome');
+    const typeExpenseLabel = t('statements.typeExpense');
+
     const filteredTransactions = useMemo(() => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
+        const incomeSearch = typeIncomeLabel.toLowerCase();
+        const expenseSearch = typeExpenseLabel.toLowerCase();
 
         return transactions.filter((transaction) => {
             const transactionMonth = transaction.date.slice(0, 7);
             const monthMatch = selectedMonth === ALL_MONTHS_VALUE ? true : transactionMonth === selectedMonth;
 
             const typeMatch =
-                transactionType === 'All'
+                transactionType === 'all'
                     ? true
-                    : transactionType === 'Income'
+                    : transactionType === 'income'
                         ? transaction.type === 'income'
                         : transaction.type === 'expense';
 
@@ -136,11 +156,21 @@ export function Statements() {
                     ? true
                     : transaction.description.toLowerCase().includes(normalizedSearch) ||
                     getCategoryLabel(transaction).toLowerCase().includes(normalizedSearch) ||
-                    transaction.type.toLowerCase().includes(normalizedSearch);
+                    transaction.type.toLowerCase().includes(normalizedSearch) ||
+                    incomeSearch.includes(normalizedSearch) ||
+                    expenseSearch.includes(normalizedSearch);
 
             return monthMatch && typeMatch && searchMatch;
         });
-    }, [transactions, selectedMonth, transactionType, searchTerm]);
+    }, [
+        transactions,
+        selectedMonth,
+        transactionType,
+        searchTerm,
+        getCategoryLabel,
+        typeIncomeLabel,
+        typeExpenseLabel,
+    ]);
 
     const { totalIn, totalOut, netFlow } = useMemo(() => {
         const inValue = filteredTransactions
@@ -167,18 +197,18 @@ export function Statements() {
             acc[dateKey].push(transaction);
             return acc;
         }, {} as Record<string, StatementTransaction[]>);
-    }, [filteredTransactions]);
+    }, [filteredTransactions, toGroupDate]);
 
     const selectedMonthLabel = useMemo(() => {
-        if (!selectedMonth || selectedMonth === ALL_MONTHS_VALUE) return 'All months';
+        if (!selectedMonth || selectedMonth === ALL_MONTHS_VALUE) return t('statements.allMonths');
         const [year, month] = selectedMonth.split('-').map(Number);
         const labelDate = new Date(Date.UTC(year, month - 1, 1));
-        return new Intl.DateTimeFormat('en-US', {
+        return new Intl.DateTimeFormat(intlLocale, {
             month: 'long',
             year: 'numeric',
             timeZone: 'UTC',
         }).format(labelDate);
-    }, [selectedMonth]);
+    }, [selectedMonth, intlLocale, t]);
 
     const monthOptions = useMemo(() => {
         const availableMonths = Array.from(
@@ -195,13 +225,19 @@ export function Statements() {
     const handleExportCSV = () => {
         if (filteredTransactions.length === 0) return;
 
-        const header = ['Date', 'Description', 'Category', 'Type', 'Amount'];
+        const header = [
+            t('statements.csvDate'),
+            t('statements.csvDescription'),
+            t('statements.csvCategory'),
+            t('statements.csvType'),
+            t('statements.csvAmount'),
+        ];
         const rows = filteredTransactions.map((transaction) => [
             toCSVDate(transaction.date),
             transaction.description,
             getCategoryLabel(transaction),
-            transaction.type === 'income' ? 'Income' : 'Expense',
-            Math.abs(transaction.amount).toFixed(2),
+            transaction.type === 'income' ? typeIncomeLabel : typeExpenseLabel,
+            formatMoney(Math.abs(transaction.amount)),
         ]);
 
         const csvContent = [
@@ -214,10 +250,12 @@ export function Statements() {
                 ? 'all_months'
                 : (() => {
                     const [year, month] = selectedMonth.split('-');
-                    return new Intl.DateTimeFormat('en-US', {
+                    return new Intl.DateTimeFormat(intlLocale, {
                         month: 'long',
                         timeZone: 'UTC',
-                    }).format(new Date(Date.UTC(Number(year), Number(month) - 1, 1))).toLowerCase();
+                    })
+                        .format(new Date(Date.UTC(Number(year), Number(month) - 1, 1)))
+                        .toLowerCase();
                 })();
         const fileYear = selectedMonth === ALL_MONTHS_VALUE ? new Date().getUTCFullYear() : selectedMonth.split('-')[0];
 
@@ -232,24 +270,46 @@ export function Statements() {
         URL.revokeObjectURL(url);
     };
 
-    const kpis = [
-        { label: 'Total In', value: formatCurrency(Math.abs(totalIn)), color: '#059669', icon: ArrowUpRight },
-        { label: 'Total Out', value: `-${formatCurrency(Math.abs(totalOut))}`, color: '#0f172a', icon: ArrowDownRight },
-        { label: 'Net Flow', value: `${netFlow >= 0 ? '+' : '-'}${formatCurrency(Math.abs(netFlow))}`, color: netFlow >= 0 ? '#059669' : '#dc2626', icon: ArrowRightLeft },
+    const filterPills: { key: TransactionTypeFilter; label: string }[] = [
+        { key: 'all', label: t('statements.typeAll') },
+        { key: 'income', label: typeIncomeLabel },
+        { key: 'expense', label: typeExpenseLabel },
     ];
+
+    const kpis = useMemo(
+        () => [
+            {
+                label: t('statements.totalIn'),
+                value: formatMoney(Math.abs(totalIn)),
+                color: '#059669',
+                icon: ArrowUpRight,
+            },
+            {
+                label: t('statements.totalOut'),
+                value: `-${formatMoney(Math.abs(totalOut))}`,
+                color: '#0f172a',
+                icon: ArrowDownRight,
+            },
+            {
+                label: t('statements.netFlow'),
+                value: `${netFlow >= 0 ? '+' : '-'}${formatMoney(Math.abs(netFlow))}`,
+                color: netFlow >= 0 ? '#059669' : '#dc2626',
+                icon: ArrowRightLeft,
+            },
+        ],
+        [t, totalIn, totalOut, netFlow, formatMoney],
+    );
 
     return (
         <S.Container>
-            {/* Header */}
             <S.Header>
-                <S.Title>Statements</S.Title>
+                <S.Title>{t('statements.title')}</S.Title>
                 <S.ExportButton onClick={handleExportCSV} disabled={filteredTransactions.length === 0}>
                     <Download size={18} />
-                    Export to CSV
+                    {t('statements.exportCsv')}
                 </S.ExportButton>
             </S.Header>
 
-            {/* KPI Cards */}
             <S.KPIGrid>
                 {kpis.map((kpi) => (
                     <S.KPICard key={kpi.label}>
@@ -264,15 +324,14 @@ export function Statements() {
                 ))}
             </S.KPIGrid>
 
-            {/* Toolbar */}
             <S.Toolbar>
                 <S.SearchWrapper>
                     <S.SearchIcon>
                         <Search size={18} />
                     </S.SearchIcon>
-                    <S.SearchInput 
-                        type="text" 
-                        placeholder="Search transactions..."
+                    <S.SearchInput
+                        type="text"
+                        placeholder={t('statements.searchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -284,7 +343,7 @@ export function Statements() {
                     <select
                         value={selectedMonth}
                         onChange={(e) => setSelectedMonth(e.target.value)}
-                        aria-label="Filter by month"
+                        aria-label={t('statements.filterByMonth')}
                         style={{
                             position: 'absolute',
                             inset: 0,
@@ -301,26 +360,25 @@ export function Statements() {
                 </S.DateFilter>
 
                 <S.FilterPills>
-                    {['All', 'Income', 'Expense'].map((type) => (
+                    {filterPills.map((pill) => (
                         <S.FilterButton
-                            key={type}
-                            onClick={() => setTransactionType(type as TransactionTypeFilter)}
-                            $active={transactionType === type}
+                            key={pill.key}
+                            onClick={() => setTransactionType(pill.key)}
+                            $active={transactionType === pill.key}
                         >
-                            {type}
+                            {pill.label}
                         </S.FilterButton>
                     ))}
                 </S.FilterPills>
             </S.Toolbar>
 
-            {/* Transaction Ledger */}
             <S.Ledger>
                 {isLoading && (
                     <>
                         {Array.from({ length: 3 }).map((_, index) => (
                             <S.DateGroup key={`loading-${index}`}>
                                 <S.DateHeader>
-                                    <S.DateLabel>Loading...</S.DateLabel>
+                                    <S.DateLabel>{t('statements.loading')}</S.DateLabel>
                                     <S.DateDivider />
                                 </S.DateHeader>
                                 <S.TransactionListWrapper>
@@ -336,43 +394,45 @@ export function Statements() {
                     </>
                 )}
 
-                {!isLoading && Object.entries(groupedTransactions).map(([date, items]) => (
-                    <S.DateGroup key={date}>
-                        <S.DateHeader>
-                            <S.DateLabel>{date}</S.DateLabel>
-                            <S.DateDivider />
-                        </S.DateHeader>
+                {!isLoading &&
+                    Object.entries(groupedTransactions).map(([date, items]) => (
+                        <S.DateGroup key={date}>
+                            <S.DateHeader>
+                                <S.DateLabel>{date}</S.DateLabel>
+                                <S.DateDivider />
+                            </S.DateHeader>
 
-                        <S.TransactionListWrapper>
-                            {items.map((item) => (
-                                <S.TransactionItem key={item.id}>
-                                    <S.ItemInfo>
-                                        <S.ItemIcon $type={item.type as 'income' | 'expense'}>
-                                            {item.type === 'income' ? <ArrowUpRight size={22} /> : <ArrowDownRight size={22} />}
-                                        </S.ItemIcon>
-                                        <S.ItemDetails>
-                                            <S.ItemDescription>{item.description}</S.ItemDescription>
-                                            <S.ItemCategory>{getCategoryLabel(item)}</S.ItemCategory>
-                                        </S.ItemDetails>
-                                    </S.ItemInfo>
+                            <S.TransactionListWrapper>
+                                {items.map((item) => (
+                                    <S.TransactionItem key={item.id}>
+                                        <S.ItemInfo>
+                                            <S.ItemIcon $type={item.type as 'income' | 'expense'}>
+                                                {item.type === 'income' ? <ArrowUpRight size={22} /> : <ArrowDownRight size={22} />}
+                                            </S.ItemIcon>
+                                            <S.ItemDetails>
+                                                <S.ItemDescription>{item.description}</S.ItemDescription>
+                                                <S.ItemCategory>{getCategoryLabel(item)}</S.ItemCategory>
+                                            </S.ItemDetails>
+                                        </S.ItemInfo>
 
-                                    <S.ItemAmount $type={item.type as 'income' | 'expense'}>
-                                        {item.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(item.amount))}
-                                    </S.ItemAmount>
-                                </S.TransactionItem>
-                            ))}
-                        </S.TransactionListWrapper>
-                    </S.DateGroup>
-                ))}
+                                        <S.ItemAmount $type={item.type as 'income' | 'expense'}>
+                                            {item.type === 'income' ? '+' : '-'}
+                                            {formatMoney(Math.abs(item.amount))}
+                                        </S.ItemAmount>
+                                    </S.TransactionItem>
+                                ))}
+                            </S.TransactionListWrapper>
+                        </S.DateGroup>
+                    ))}
             </S.Ledger>
-            
+
             {!isLoading && filteredTransactions.length === 0 && (
                 <S.EmptyState>
                     <S.EmptyIcon>
                         <Search size={32} />
                     </S.EmptyIcon>
-                    <S.EmptyTitle>No transactions found</S.EmptyTitle>
-                    <S.EmptyText>No transactions found. Try adjusting your filters.</S.EmptyText>
+                    <S.EmptyTitle>{t('statements.noTransactionsTitle')}</S.EmptyTitle>
+                    <S.EmptyText>{t('statements.noTransactionsHint')}</S.EmptyText>
                 </S.EmptyState>
             )}
         </S.Container>

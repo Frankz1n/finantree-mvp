@@ -1,4 +1,5 @@
-import { Home, Wallet, User, LogOut } from "lucide-react"
+import { Home, Wallet, User, LogOut, Repeat, Sprout } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { useAuth } from "@/hooks/useAuth"
 import { useNavigate, useLocation } from "react-router-dom"
 import finantreeIcon from "@/assets/finatree-icon.svg"
@@ -21,6 +22,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }: SidebarItemProps) =
 }
 
 export function Sidebar() {
+    const { t } = useTranslation()
     const { signOut } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
@@ -31,9 +33,11 @@ export function Sidebar() {
     }
 
     const menuItems = [
-        { icon: Home, label: "Home", path: "/dashboard" },
-        { icon: Wallet, label: "Statements", path: "/extract" },
-        { icon: User, label: "Profile", path: "/profile" },
+        { icon: Home, label: t("nav.home"), path: "/dashboard" },
+        { icon: Wallet, label: t("nav.statements"), path: "/extract" },
+        { icon: Repeat, label: t("nav.recurring"), path: "/recurring" },
+        { icon: Sprout, label: t("nav.garden"), path: "/garden" },
+        { icon: User, label: t("nav.profile"), path: "/profile" },
     ]
 
     return (
@@ -41,7 +45,7 @@ export function Sidebar() {
             {/* Logo */}
             <S.LogoSection>
                 <S.LogoIconWrapper>
-                    <img src={finantreeIcon} alt="Finantree Logo" style={{ height: '1.5rem', width: '1.5rem', objectFit: 'contain' }} />
+                    <img src={finantreeIcon} alt={t("nav.logoAlt")} style={{ height: '1.5rem', width: '1.5rem', objectFit: 'contain' }} />
                 </S.LogoIconWrapper>
                 <S.LogoText>Finantree</S.LogoText>
             </S.LogoSection>
@@ -61,7 +65,7 @@ export function Sidebar() {
             <S.FooterSection>
                 <S.LogoutButton onClick={handleLogout}>
                     <LogOut size={20} />
-                    Logout
+                    {t("nav.logout")}
                 </S.LogoutButton>
             </S.FooterSection>
         </S.SidebarContainer>

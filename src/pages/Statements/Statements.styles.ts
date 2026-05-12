@@ -1,16 +1,24 @@
 import styled from 'styled-components';
+import { media } from '@/styles/media';
 
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 1.5rem;
-  max-width: 1152px;
+  gap: 1.25rem;
+  padding: 0.75rem 0.75rem 1rem;
+  max-width: min(72rem, 100%);
   margin: 0 auto;
   min-height: 100vh;
+  width: 100%;
 
-  @media (min-width: 1024px) {
-    padding: 2.5rem;
+  ${media.md} {
+    gap: 1.75rem;
+    padding: 1rem 1rem 1.5rem;
+  }
+
+  ${media.lg} {
+    gap: 2rem;
+    padding: 1.5rem 1.5rem 2rem;
   }
 `;
 
@@ -18,35 +26,45 @@ export const Header = styled.header`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
+  align-items: stretch;
+  gap: 0.75rem;
 
-  @media (min-width: 640px) {
+  ${media.sm} {
     flex-direction: row;
     align-items: center;
   }
 `;
 
 export const Title = styled.h1`
-  font-size: 1.875rem;
+  font-size: clamp(1.35rem, 4vw, 1.875rem);
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.025em;
+  margin: 0;
+  line-height: 1.15;
 `;
 
 export const ExportButton = styled.button`
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.85rem;
   border: 2px solid #e2e8f0;
   border-radius: 0.75rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: #475569;
   background: white;
   transition: all 0.2s;
   cursor: pointer;
+  width: 100%;
+
+  ${media.sm} {
+    width: auto;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
 
   &:hover {
     background-color: #f8fafc;
@@ -56,11 +74,17 @@ export const ExportButton = styled.button`
 
 export const KPIGrid = styled.div`
   display: grid;
-  grid-template-cols: 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
 
-  @media (min-width: 768px) {
-    grid-template-cols: repeat(3, 1fr);
+  ${media.sm} {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  ${media.md} {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
   }
 `;
 
@@ -103,33 +127,39 @@ export const KPIIconWrapper = styled.div<{ $color: string }>`
 `;
 
 export const KPIValue = styled.p<{ $color: string }>`
-  font-size: 1.5rem;
+  font-size: clamp(1.125rem, 3.5vw, 1.5rem);
   font-weight: 900;
   color: ${({ $color }) => $color};
+  word-break: break-word;
 `;
 
 export const Toolbar = styled.div`
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: rgba(248, 250, 252, 0.8);
+  background-color: rgba(248, 250, 252, 0.92);
   backdrop-filter: blur(8px);
-  padding: 1rem 0;
+  padding: 0.65rem 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  align-items: center;
+  gap: 0.65rem;
+  align-items: stretch;
+  width: 100%;
 
-  @media (min-width: 768px) {
+  ${media.md} {
     flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
   }
 `;
 
 export const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
-  
-  @media (min-width: 768px) {
+  min-width: 0;
+
+  ${media.md} {
     flex: 1;
   }
 `;
@@ -162,47 +192,56 @@ export const DateFilter = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 0.85rem;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 1rem;
   cursor: pointer;
   width: 100%;
+  min-width: 0;
   transition: all 0.2s;
 
   &:hover {
     border-color: #cbd5e1;
   }
 
-  @media (min-width: 768px) {
+  ${media.md} {
     width: auto;
+    max-width: 14rem;
+    padding: 0.75rem 1rem;
   }
 `;
 
 export const DateFilterText = styled.span`
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem);
   font-weight: 600;
   color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const FilterPills = styled.div`
   display: flex;
-  padding: 0.25rem;
+  padding: 0.2rem;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 1rem;
   width: 100%;
+  min-width: 0;
 
-  @media (min-width: 768px) {
+  ${media.md} {
     width: auto;
+    padding: 0.25rem;
   }
 `;
 
 export const FilterButton = styled.button<{ $active?: boolean }>`
   flex: 1;
-  padding: 0.5rem 1.5rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
+  min-width: 0;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.65rem;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem);
   font-weight: 700;
   transition: all 0.2s;
   background: ${({ $active }) => $active ? '#0f172a' : 'transparent'};
@@ -215,8 +254,9 @@ export const FilterButton = styled.button<{ $active?: boolean }>`
     color: ${({ $active }) => $active ? 'white' : '#0f172a'};
   }
 
-  @media (min-width: 768px) {
+  ${media.md} {
     flex: initial;
+    padding: 0.5rem 1.25rem;
   }
 `;
 
@@ -255,19 +295,30 @@ export const DateDivider = styled.div`
 
 export const TransactionListWrapper = styled.div`
   background: white;
-  border-radius: 2rem;
+  border-radius: 1.25rem;
   overflow: hidden;
   border: 1px solid #f1f5f9;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+  ${media.md} {
+    border-radius: 2rem;
+  }
 `;
 
 export const TransactionItem = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem;
+  gap: 0.5rem 0.75rem;
+  padding: 0.85rem 1rem;
   transition: background-color 0.2s;
   cursor: pointer;
+
+  ${media.md} {
+    flex-wrap: nowrap;
+    padding: 1.25rem;
+  }
 
   &:not(:last-child) {
     border-bottom: 1px solid #f8fafc;
@@ -281,7 +332,14 @@ export const TransactionItem = styled.div`
 export const ItemInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1 1 12rem;
+
+  ${media.md} {
+    gap: 1rem;
+    flex: initial;
+  }
 `;
 
 export const ItemIcon = styled.div<{ $type: 'income' | 'expense' }>`
@@ -300,9 +358,11 @@ export const ItemDetails = styled.div`
 `;
 
 export const ItemDescription = styled.span`
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
   font-weight: 700;
   color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const ItemCategory = styled.span`
@@ -312,18 +372,25 @@ export const ItemCategory = styled.span`
 `;
 
 export const ItemAmount = styled.div<{ $type: 'income' | 'expense' }>`
-  font-size: 1.125rem;
+  font-size: clamp(0.95rem, 3vw, 1.125rem);
   font-weight: 900;
   color: ${({ $type }) => $type === 'income' ? '#059669' : '#0f172a'};
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
 `;
 
 export const EmptyState = styled.div`
   display: flex;
   flex-direction: column;
-  items-center: center;
+  align-items: center;
   justify-content: center;
-  padding: 5rem 0;
+  padding: 3rem 1rem;
   text-align: center;
+
+  ${media.md} {
+    padding: 5rem 1rem;
+  }
 `;
 
 export const EmptyIcon = styled.div`
