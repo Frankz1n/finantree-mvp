@@ -60,7 +60,8 @@
     "recentActivity": "Atividade recente",
     "seeAll": "Ver tudo ({{count}})",
     "transactionCleared": "Transação quitada com sucesso!",
-    "transactionClearFailed": "Não foi possível quitar a transação. Tente novamente."
+    "transactionClearFailed": "Não foi possível quitar a transação. Tente novamente.",
+    "loadTransactionsError": "Não foi possível carregar as transações"
   },
   "statements": {
     "title": "Extrato",
@@ -215,7 +216,9 @@
     "expenseUpdated": "Despesa atualizada com sucesso!",
     "incomeAdded": "Receita adicionada com sucesso!",
     "expenseAdded": "Despesa adicionada com sucesso!",
-    "saveError": "Erro ao salvar. Tente novamente."
+    "saveError": "Erro ao salvar. Tente novamente.",
+    "loadCategoriesFailed": "Não foi possível carregar as categorias",
+    "defaultCategoryName": "Geral"
   },
   "transactionList": {
     "noTitle": "Nenhuma transação encontrada",

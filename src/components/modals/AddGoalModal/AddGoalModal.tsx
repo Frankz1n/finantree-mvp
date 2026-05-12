@@ -60,8 +60,11 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
       toast.success(t('garden.addModal.saved'))
       onClose()
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : t('garden.addModal.saveFailed')
-      toast.error(message)
+      const detail =
+        e && typeof e === "object" && "message" in e && typeof (e as { message: unknown }).message === "string"
+          ? (e as { message: string }).message
+          : ""
+      toast.error(detail ? `${t("garden.addModal.saveFailed")}: ${detail}` : t("garden.addModal.saveFailed"))
     } finally {
       setIsSubmitting(false)
     }

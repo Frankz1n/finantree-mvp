@@ -34,8 +34,13 @@ export function Home() {
         try {
             const data = await TransactionService.getTransactions(user.id, selectedDate);
             setTransactions(data as Transaction[]);
-        } catch (e) {
+        } catch (e: unknown) {
             console.error("Failed to load transactions", e);
+            const detail =
+                e && typeof e === "object" && "message" in e && typeof (e as { message: unknown }).message === "string"
+                    ? (e as { message: string }).message
+                    : "";
+            toast.error(detail ? `${t("home.loadTransactionsError")}: ${detail}` : t("home.loadTransactionsError"));
         } finally {
             setIsLoading(false);
         }

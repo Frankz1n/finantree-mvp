@@ -60,7 +60,8 @@
     "recentActivity": "Recent activity",
     "seeAll": "See all ({{count}})",
     "transactionCleared": "Transaction cleared successfully!",
-    "transactionClearFailed": "Failed to clear transaction. Please try again."
+    "transactionClearFailed": "Failed to clear transaction. Please try again.",
+    "loadTransactionsError": "Could not load transactions"
   },
   "statements": {
     "title": "Statements",
@@ -215,7 +216,9 @@
     "expenseUpdated": "Expense updated successfully!",
     "incomeAdded": "Income added successfully!",
     "expenseAdded": "Expense added successfully!",
-    "saveError": "Error saving transaction. Please try again."
+    "saveError": "Error saving transaction. Please try again.",
+    "loadCategoriesFailed": "Could not load categories",
+    "defaultCategoryName": "General"
   },
   "transactionList": {
     "noTitle": "No transactions found",

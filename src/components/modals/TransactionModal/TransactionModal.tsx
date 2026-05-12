@@ -43,14 +43,44 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
 
     useEffect(() => {
         if (!isOpen || !user) return
+
+        let cancelled = false
+
         const load = async () => {
             setIsLoadingCats(true)
-            const data = await TransactionService.getCategories(type, user.id)
-            setCategories(data as Category[])
-            setIsLoadingCats(false)
+            try {
+                let data = await TransactionService.getCategories(type, user.id)
+                if (cancelled) return
+                if (data.length === 0 && !initialData?.id) {
+                    const created = await TransactionService.createCategory(
+                        user.id,
+                        t("transactionModal.defaultCategoryName"),
+                        type,
+                    )
+                    data = [created]
+                }
+                setCategories(data as Category[])
+                if (!initialData?.id && data.length > 0) {
+                    setSelectedCategory(String(data[0].id))
+                }
+            } catch (err: unknown) {
+                if (cancelled) return
+                setCategories([])
+                const detail =
+                    err && typeof err === "object" && "message" in err && typeof (err as { message: unknown }).message === "string"
+                        ? (err as { message: string }).message
+                        : ""
+                toast.error(detail ? `${t("transactionModal.loadCategoriesFailed")}: ${detail}` : t("transactionModal.loadCategoriesFailed"))
+            } finally {
+                if (!cancelled) setIsLoadingCats(false)
+            }
         }
-        load()
-    }, [type, isOpen, user])
+
+        void load()
+        return () => {
+            cancelled = true
+        }
+    }, [type, isOpen, user, t, initialData?.id])
 
 
     useEffect(() => {
@@ -83,8 +113,12 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
             setSelectedCategory(newCat.id)
             setIsAddingCategory(false)
             setNewCategoryName('')
-        } catch {
-            toast.error(t("transactionModal.categoryCreateFailed"))
+        } catch (err: unknown) {
+            const detail =
+                err && typeof err === "object" && "message" in err && typeof (err as { message: unknown }).message === "string"
+                    ? (err as { message: string }).message
+                    : ""
+            toast.error(detail ? `${t("transactionModal.categoryCreateFailed")}: ${detail}` : t("transactionModal.categoryCreateFailed"))
         } finally {
             setIsLoadingCats(false)
         }
@@ -119,7 +153,7 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                     description: description.trim(),
                     category_id: selectedCategory,
                     date: dueDate,
-                    status: isPending ? 'pending' : 'paid'
+                    ...(isPending ? { status: 'pending' as const } : { status: 'paid' as const }),
                 })
                 toast.success(isIncome ? t("transactionModal.incomeUpdated") : t("transactionModal.expenseUpdated"))
             } else {
@@ -130,7 +164,7 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                     description: description.trim(),
                     category_id: selectedCategory,
                     date: dueDate,
-                    status: isPending ? 'pending' : 'paid'
+                    ...(isPending ? { status: 'pending' as const } : {}),
                 })
                 toast.success(isIncome ? t("transactionModal.incomeAdded") : t("transactionModal.expenseAdded"))
             }
@@ -205,7 +239,11 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                                     {categories.map((cat) => (
                                         <S.CategoryButton
                                             key={cat.id}
-                                            onClick={() => setSelectedCategory(cat.id)}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedCategory(cat.id)
+                                                setIsAddingCategory(false)
+                                            }}
                                             $isSelected={selectedCategory === cat.id}
                                             $isIncome={isIncome}
                                         >
@@ -221,11 +259,10 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                                                 value={newCategoryName}
                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategoryName(e.target.value)}
                                                 placeholder={t("transactionModal.categoryNamePh")}
-                                                onBlur={() => setTimeout(() => setIsAddingCategory(false), 200)}
                                             />
                                         </S.NewCategoryForm>
                                     ) : (
-                                        <S.CategoryButton type="button" onClick={(e: React.MouseEvent) => { e.preventDefault(); setIsAddingCategory(true) }} $isIncome={isIncome}>
+                                        <S.CategoryButton type="button" onClick={(e: React.MouseEvent) => { e.preventDefault(); setIsAddingCategory((v) => { if (v) setNewCategoryName(""); return !v }) }} $isIncome={isIncome}>
                                             <S.CategoryIcon>+</S.CategoryIcon>
                                             <S.CategoryName>{t("transactionModal.newCategory")}</S.CategoryName>
                                         </S.CategoryButton>

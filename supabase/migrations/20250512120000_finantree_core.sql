@@ -67,6 +67,23 @@ alter table public.categories
 delete from public.categories where user_id is null;
 alter table public.categories alter column user_id set not null;
 
+-- Tabela categories antiga costuma não ter type/color (o PostgREST retorna 42703).
+alter table public.categories add column if not exists type text;
+alter table public.categories add column if not exists color text;
+alter table public.categories add column if not exists name text;
+
+update public.categories set type = lower(trim(type::text));
+update public.categories set type = 'expense' where type is null or type not in ('income', 'expense');
+update public.categories set color = '#64748b' where color is null or trim(color) = '';
+update public.categories set name = 'Categoria' where name is null or trim(name) = '';
+
+alter table public.categories alter column type set not null;
+alter table public.categories alter column name set not null;
+alter table public.categories alter column color set default '#64748b';
+
+alter table public.categories drop constraint if exists categories_type_check;
+alter table public.categories add constraint categories_type_check check (type in ('income', 'expense'));
+
 create index if not exists categories_user_id_idx on public.categories (user_id);
 
 alter table public.categories enable row level security;
@@ -102,6 +119,39 @@ alter table public.transactions
   add column if not exists user_id uuid references auth.users (id) on delete cascade;
 delete from public.transactions where user_id is null;
 alter table public.transactions alter column user_id set not null;
+
+alter table public.transactions add column if not exists date timestamptz;
+update public.transactions set date = coalesce(date, now()) where date is null;
+alter table public.transactions alter column date set not null;
+
+alter table public.transactions add column if not exists status text;
+update public.transactions
+set status = case
+  when status is null or trim(status::text) = '' then 'paid'
+  when lower(trim(status::text)) = 'pending' then 'pending'
+  else 'paid'
+end;
+alter table public.transactions alter column status set default 'paid';
+alter table public.transactions alter column status set not null;
+
+alter table public.transactions drop constraint if exists transactions_status_check;
+alter table public.transactions add constraint transactions_status_check check (status in ('paid', 'pending'));
+
+-- type: CHECK income|expense (normaliza legado em PT)
+alter table public.transactions add column if not exists type text;
+
+update public.transactions
+set type = case
+  when type is null or trim(type::text) = '' then 'expense'
+  when lower(trim(type::text)) in ('income', 'receita', 'entrada') then 'income'
+  when lower(trim(type::text)) in ('expense', 'despesa', 'saida', 'saída') then 'expense'
+  else 'expense'
+end;
+
+alter table public.transactions drop constraint if exists transactions_type_check;
+alter table public.transactions add constraint transactions_type_check check (type in ('income', 'expense'));
+
+alter table public.transactions alter column type set not null;
 
 create index if not exists transactions_user_id_date_idx on public.transactions (user_id, date desc);
 
