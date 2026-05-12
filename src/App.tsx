@@ -6,6 +6,7 @@ import { Statements } from './pages/Statements/Statements'
 import { Profile } from './pages/Profile/Profile'
 import { Recurring } from './pages/Recurring/Recurring'
 import { Garden } from './pages/Garden/Garden'
+import { Analytics } from './pages/Analytics/Analytics'
 import { Login } from './pages/Auth/Login'
 import { Register } from './pages/Auth/Register'
 import { ForgotPassword } from './pages/Auth/ForgotPassword'
@@ -39,6 +40,7 @@ function App() {
         <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
 
         <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
         <Route path="/extract" element={<ProtectedRoute><Statements /></ProtectedRoute>} />
         <Route path="/recurring" element={<ProtectedRoute><Recurring /></ProtectedRoute>} />
         <Route path="/garden" element={<ProtectedRoute><Garden /></ProtectedRoute>} />

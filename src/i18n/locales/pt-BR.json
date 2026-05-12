@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Início",
+    "analytics": "Análise",
     "statements": "Extrato",
     "recurring": "Recorrentes",
     "profile": "Perfil",
@@ -17,6 +18,17 @@
     "delete": "Excluir",
     "edit": "Editar",
     "general": "Geral"
+  },
+  "analytics": {
+    "title": "Panorama",
+    "subtitle": "Veja para onde vão seus gastos e de onde vêm suas receitas no mês.",
+    "expensesTitle": "Gastos por categoria",
+    "incomesTitle": "Receitas por categoria",
+    "totalExpenses": "Total de gastos",
+    "totalIncomes": "Total de receitas",
+    "emptyExpenses": "Nenhuma despesa neste mês.",
+    "emptyIncomes": "Nenhuma receita neste mês.",
+    "loadError": "Não foi possível carregar as análises"
   },
   "profile": {
     "title": "Perfil",

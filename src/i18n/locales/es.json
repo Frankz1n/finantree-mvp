@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Inicio",
+    "analytics": "Análisis",
     "statements": "Extracto",
     "recurring": "Recurrentes",
     "profile": "Perfil",
@@ -17,6 +18,17 @@
     "delete": "Eliminar",
     "edit": "Editar",
     "general": "General"
+  },
+  "analytics": {
+    "title": "Panorama",
+    "subtitle": "Mira a dónde van tus gastos y de dónde vienen tus ingresos este mes.",
+    "expensesTitle": "Gastos por categoría",
+    "incomesTitle": "Ingresos por categoría",
+    "totalExpenses": "Total de gastos",
+    "totalIncomes": "Total de ingresos",
+    "emptyExpenses": "No hay gastos este mes.",
+    "emptyIncomes": "No hay ingresos este mes.",
+    "loadError": "No se pudieron cargar los datos"
   },
   "profile": {
     "title": "Perfil",

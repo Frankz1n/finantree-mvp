@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Home",
+    "analytics": "Insights",
     "statements": "Statements",
     "recurring": "Recurring",
     "profile": "Profile",
@@ -17,6 +18,17 @@
     "delete": "Delete",
     "edit": "Edit",
     "general": "General"
+  },
+  "analytics": {
+    "title": "Insights",
+    "subtitle": "See where your money goes and where your income comes from this month.",
+    "expensesTitle": "Spending by category",
+    "incomesTitle": "Income by category",
+    "totalExpenses": "Total spending",
+    "totalIncomes": "Total income",
+    "emptyExpenses": "No expenses this month.",
+    "emptyIncomes": "No income this month.",
+    "loadError": "Could not load insights"
   },
   "profile": {
     "title": "Profile",

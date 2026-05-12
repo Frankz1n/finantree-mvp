@@ -1,4 +1,4 @@
-import { Home, Wallet, Repeat, Sprout, User } from "lucide-react"
+import { Home, Wallet, Repeat, Sprout, User, PieChart } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useLocation } from "react-router-dom"
 import * as S from "./BottomBar.styles"
@@ -30,6 +30,7 @@ export function BottomBar() {
 
     const menuItems = [
         { icon: Home, label: t("nav.home"), path: "/dashboard" },
+        { icon: PieChart, label: t("nav.analytics"), path: "/analytics" },
         { icon: Wallet, label: t("nav.statements"), path: "/extract" },
         { icon: Repeat, label: t("nav.recurring"), path: "/recurring" },
         { icon: Sprout, label: t("nav.garden"), path: "/garden" },

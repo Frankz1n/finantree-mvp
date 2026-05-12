@@ -1,4 +1,4 @@
-import { Home, Wallet, User, LogOut, Repeat, Sprout } from "lucide-react"
+import { Home, Wallet, User, LogOut, Repeat, Sprout, PieChart } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useAuth } from "@/hooks/useAuth"
 import { useNavigate, useLocation } from "react-router-dom"
@@ -34,6 +34,7 @@ export function Sidebar() {
 
     const menuItems = [
         { icon: Home, label: t("nav.home"), path: "/dashboard" },
+        { icon: PieChart, label: t("nav.analytics"), path: "/analytics" },
         { icon: Wallet, label: t("nav.statements"), path: "/extract" },
         { icon: Repeat, label: t("nav.recurring"), path: "/recurring" },
         { icon: Sprout, label: t("nav.garden"), path: "/garden" },
