@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { DashboardLayout } from './components/layout/DashboardLayout/DashboardLayout'
+import { PwaInstallPrompt } from './components/pwa/PwaInstallPrompt'
 import { Home } from './pages/Home/Home'
 import { Statements } from './pages/Statements/Statements'
 import { Profile } from './pages/Profile/Profile'
@@ -31,6 +32,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <BrowserRouter>
+      <PwaInstallPrompt />
       <Routes>
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />

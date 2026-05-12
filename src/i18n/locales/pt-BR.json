@@ -252,6 +252,7 @@
     "fillFields": "Preencha todos os campos",
     "passwordLength": "A senha deve ter pelo menos 6 caracteres",
     "created": "Conta criada com sucesso! Bem-vindo ao Finantree.",
+    "checkEmail": "Enviamos um link de confirmação. Abra seu e-mail e toque no link para ativar a conta; depois faça login aqui.",
     "createFailed": "Não foi possível criar a conta"
   },
   "authForgot": {
@@ -266,6 +267,15 @@
     "enterEmail": "Informe seu e-mail",
     "resetSent": "Instruções enviadas por e-mail!",
     "resetFailed": "Não foi possível enviar o e-mail"
+  },
+  "pwaInstall": {
+    "title": "Instalar o app Finantree",
+    "description": "Use como app no celular: abre rápido, fica na tela inicial e funciona melhor no dia a dia.",
+    "iosHint": "Toque em Compartilhar (quadrado com seta), role e escolha \"Adicionar à Tela de Início\".",
+    "androidHint": "Seu navegador permite instalar o app oficialmente — use o botão abaixo.",
+    "genericHint": "No menu do navegador, procure \"Instalar app\", \"Adicionar à tela inicial\" ou equivalente.",
+    "install": "Instalar app",
+    "later": "Agora não"
   },
   "confirmDelete": {
     "yesDelete": "Sim, excluir",

@@ -33,7 +33,12 @@ export function Register() {
 
         try {
             setIsLoading(true)
-            await signUp(email, password, name)
+            const signUpResult = await signUp(email, password, name)
+            if (!signUpResult.session) {
+                toast.success(t("authRegister.checkEmail"))
+                navigate("/login")
+                return
+            }
             toast.success(t("authRegister.created"))
             navigate("/dashboard")
         } catch (error: unknown) {

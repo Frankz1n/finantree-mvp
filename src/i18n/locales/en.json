@@ -252,6 +252,7 @@
     "fillFields": "Please fill in all fields",
     "passwordLength": "Password must be at least 6 characters",
     "created": "Account created successfully! Welcome to Finantree.",
+    "checkEmail": "We sent a confirmation link. Open your email, tap the link to verify your account, then sign in here.",
     "createFailed": "Failed to create account"
   },
   "authForgot": {
@@ -266,6 +267,15 @@
     "enterEmail": "Please enter your email",
     "resetSent": "Password reset instructions sent!",
     "resetFailed": "Failed to send reset email"
+  },
+  "pwaInstall": {
+    "title": "Install the Finantree app",
+    "description": "Add it to your home screen for quicker access and a smoother experience on your phone.",
+    "iosHint": "Tap Share (square with arrow), scroll down, and choose \"Add to Home Screen\".",
+    "androidHint": "Your browser can install the app — use the button below.",
+    "genericHint": "In the browser menu, look for \"Install app\", \"Add to Home screen\", or similar.",
+    "install": "Install app",
+    "later": "Not now"
   },
   "confirmDelete": {
     "yesDelete": "Yes, delete",

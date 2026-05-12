@@ -29,16 +29,14 @@ export const useAuth = () => {
     }, []);
 
 
-    const handleAuthAction = async (action: () => Promise<any>) => {
-        setLoading(true);
+    const handleAuthAction = async <T>(action: () => Promise<T>): Promise<T> => {
         setError(null);
         try {
-            await action();
-        } catch (err: any) {
-            setError(err.message);
+            return await action();
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            setError(message);
             throw err;
-        } finally {
-            setLoading(false);
         }
     };
 
