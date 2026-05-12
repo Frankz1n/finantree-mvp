@@ -210,6 +210,7 @@
     "validAmount": "Informe um valor válido.",
     "enterDescription": "Informe uma descrição.",
     "selectCategory": "Selecione uma categoria.",
+    "mustLogin": "Faça login para salvar.",
     "incomeUpdated": "Receita atualizada com sucesso!",
     "expenseUpdated": "Despesa atualizada com sucesso!",
     "incomeAdded": "Receita adicionada com sucesso!",

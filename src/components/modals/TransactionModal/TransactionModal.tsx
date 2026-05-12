@@ -91,7 +91,10 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
     }
 
     const handleSubmit = async () => {
-        const currentUserId = user?.id || "00000000-0000-0000-0000-000000000000";
+        if (!user) {
+            toast.error(t("transactionModal.mustLogin"))
+            return
+        }
 
         if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
             toast.error(t("transactionModal.validAmount"))
@@ -121,7 +124,7 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
                 toast.success(isIncome ? t("transactionModal.incomeUpdated") : t("transactionModal.expenseUpdated"))
             } else {
                 await TransactionService.createTransaction({
-                    user_id: currentUserId,
+                    user_id: user.id,
                     amount: Number(amount),
                     type,
                     description: description.trim(),
@@ -135,8 +138,12 @@ export function TransactionModal({ isOpen, type, onClose, onSuccess, initialData
             window.dispatchEvent(new CustomEvent('transaction_updated'))
             onSuccess()
             onClose()
-        } catch {
-            toast.error(t("transactionModal.saveError"))
+        } catch (err: unknown) {
+            const detail =
+                err && typeof err === "object" && "message" in err && typeof (err as { message: unknown }).message === "string"
+                    ? (err as { message: string }).message
+                    : ""
+            toast.error(detail ? `${t("transactionModal.saveError")}: ${detail}` : t("transactionModal.saveError"))
         } finally {
             setIsSubmitting(false)
         }

@@ -210,6 +210,7 @@
     "validAmount": "Introduce un importe válido.",
     "enterDescription": "Introduce una descripción.",
     "selectCategory": "Selecciona una categoría.",
+    "mustLogin": "Inicia sesión para guardar.",
     "incomeUpdated": "¡Ingreso actualizado correctamente!",
     "expenseUpdated": "¡Gasto actualizado correctamente!",
     "incomeAdded": "¡Ingreso añadido correctamente!",

@@ -210,6 +210,7 @@
     "validAmount": "Please enter a valid amount.",
     "enterDescription": "Please enter a description.",
     "selectCategory": "Please select a category.",
+    "mustLogin": "Sign in to save.",
     "incomeUpdated": "Income updated successfully!",
     "expenseUpdated": "Expense updated successfully!",
     "incomeAdded": "Income added successfully!",

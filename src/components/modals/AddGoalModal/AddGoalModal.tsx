@@ -11,7 +11,7 @@ import { GoalsService } from '@/services/goals'
 interface AddGoalModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => Promise<void> | void
+  onSuccess?: () => Promise<void> | void
 }
 
 export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) {
@@ -55,7 +55,8 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
         target_amount: target,
         deadline: deadline.trim() ? deadline : null,
       })
-      await onSuccess()
+      await onSuccess?.()
+      window.dispatchEvent(new CustomEvent('goals_updated'))
       toast.success(t('garden.addModal.saved'))
       onClose()
     } catch (e: unknown) {

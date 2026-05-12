@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Plus, Wallet, TrendingUp } from "lucide-react"
 import * as S from "./Home.styles"
 import { TransactionModal } from "@/components/modals/TransactionModal/TransactionModal";
+import { AddGoalModal } from "@/components/modals/AddGoalModal/AddGoalModal";
 import { useAuth } from "@/hooks/useAuth";
 import { TransactionService } from "@/services/transactions";
 import { buildGreetingDisplayName, getCurrentUserProfile, type PublicUserProfileRow } from "@/services/users";
@@ -18,6 +19,7 @@ export function Home() {
     const formatMoney = useMoneyFormat();
     const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
     const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+    const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
     const [editTransactionData, setEditTransactionData] = useState<Transaction | null>(null);
 
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -159,7 +161,7 @@ export function Home() {
                                 <S.ActionLabel>{t('home.addIncome')}</S.ActionLabel>
                             </S.QuickActionButton>
 
-                            <S.QuickActionButton $colorVariant="purple">
+                            <S.QuickActionButton type="button" $colorVariant="purple" onClick={() => setIsGoalModalOpen(true)}>
                                 <S.ActionIconWrapper>
                                     <TrendingUp size={28} strokeWidth={2.5} />
                                 </S.ActionIconWrapper>
@@ -206,18 +208,26 @@ export function Home() {
 
             <TransactionModal
                 isOpen={isIncomeModalOpen}
-                onClose={() => setIsIncomeModalOpen(false)}
+                onClose={() => {
+                    setIsIncomeModalOpen(false)
+                    setEditTransactionData(null)
+                }}
                 type="income"
                 onSuccess={() => { }}
                 initialData={editTransactionData}
             />
             <TransactionModal
                 isOpen={isExpenseModalOpen}
-                onClose={() => setIsExpenseModalOpen(false)}
+                onClose={() => {
+                    setIsExpenseModalOpen(false)
+                    setEditTransactionData(null)
+                }}
                 type="expense"
                 onSuccess={() => { }}
                 initialData={editTransactionData}
             />
+
+            <AddGoalModal isOpen={isGoalModalOpen} onClose={() => setIsGoalModalOpen(false)} />
         </S.HomeContainer>
     )
 }

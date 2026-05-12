@@ -53,6 +53,14 @@ export function Garden() {
     void loadGoals()
   }, [loadGoals])
 
+  useEffect(() => {
+    const onGoalsUpdated = () => {
+      void loadGoals()
+    }
+    window.addEventListener('goals_updated', onGoalsUpdated)
+    return () => window.removeEventListener('goals_updated', onGoalsUpdated)
+  }, [loadGoals])
+
   const formatDeadline = (date: string | null) => {
     if (!date) return null
     return new Intl.DateTimeFormat(intlLocale, {
@@ -137,7 +145,7 @@ export function Garden() {
           })}
       </S.CardsGrid>
 
-      <AddGoalModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onSuccess={loadGoals} />
+      <AddGoalModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} />
 
       <GoalPiggyModal
         isOpen={piggyGoal !== null}
