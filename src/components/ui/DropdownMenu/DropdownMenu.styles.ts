@@ -81,13 +81,13 @@ export const StyledDropdownMenuItem = styled(DropdownMenuPrimitive.Item) <{ $ins
   ${itemStyles}
 `;
 
-export const StyledDropdownMenuCheckboxItem = styled(DropdownMenuPrimitive.CheckboxItem)`
+export const StyledDropdownMenuCheckboxItem = styled(DropdownMenuPrimitive.CheckboxItem)<{ $inset?: boolean }>`
   ${itemStyles}
   padding-left: 2rem;
   padding-right: 0.5rem;
 `;
 
-export const StyledDropdownMenuRadioItem = styled(DropdownMenuPrimitive.RadioItem)`
+export const StyledDropdownMenuRadioItem = styled(DropdownMenuPrimitive.RadioItem)<{ $inset?: boolean }>`
   ${itemStyles}
   padding-left: 2rem;
   padding-right: 0.5rem;
